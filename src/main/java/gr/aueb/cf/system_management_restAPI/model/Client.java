@@ -24,6 +24,9 @@ public class Client extends AbstractEntity {
     @Column(name = "uuid", unique = true, nullable = false)
     private UUID uuid;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "personal_info_id")
