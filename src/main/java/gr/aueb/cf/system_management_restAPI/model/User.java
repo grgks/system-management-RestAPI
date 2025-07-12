@@ -32,7 +32,7 @@ public class User extends AbstractEntity implements UserDetails {
     private Long id;
 
     @Column(name = "uuid", unique = true, nullable = false)
-    private UUID uuid;
+    private String uuid;
 
     @Column(name = "username", unique = true, nullable = false)
     private String username;

@@ -22,7 +22,7 @@ public class Client extends AbstractEntity {
     private Long id;
 
     @Column(name = "uuid", unique = true, nullable = false)
-    private UUID uuid;
+    private String uuid;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

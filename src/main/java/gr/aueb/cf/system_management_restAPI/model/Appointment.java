@@ -25,7 +25,7 @@ public class Appointment extends AbstractEntity {
     private Long id;
 
     @Column(name = "uuid", unique = true, nullable = false)
-    private UUID uuid;
+    private String uuid;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
