@@ -9,7 +9,6 @@ import lombok.Setter;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Table(name = "appointments")
