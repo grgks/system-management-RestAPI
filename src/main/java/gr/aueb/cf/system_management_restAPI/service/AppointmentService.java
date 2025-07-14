@@ -34,7 +34,7 @@ public class AppointmentService {
     private final Mapper mapper;
 
     /**
-     * Δημιουργία νέου Appointment με validations
+     * Create new Appointment with validations
      */
     @Transactional(rollbackFor = { Exception.class })
     public AppointmentReadOnlyDTO saveAppointment(AppointmentInsertDTO appointmentInsertDTO)
@@ -63,7 +63,7 @@ public class AppointmentService {
     }
 
     /**
-     * Ενημέρωση υπάρχοντος Appointment
+     * Update Appointment
      */
     @Transactional(rollbackFor = { Exception.class })
     public AppointmentReadOnlyDTO updateAppointment(Long id, AppointmentUpdateDTO appointmentUpdateDTO)
@@ -81,7 +81,7 @@ public class AppointmentService {
     }
 
     /**
-     * Εύρεση Appointment by ID
+     * Find Appointment by ID
      */
     @Transactional(readOnly = true)
     public AppointmentReadOnlyDTO getAppointmentById(Long id) throws AppObjectNotFoundException {
@@ -92,7 +92,7 @@ public class AppointmentService {
     }
 
     /**
-     * Εύρεση Appointment by UUID
+     * Find Appointment by UUID
      */
     @Transactional(readOnly = true)
     public AppointmentReadOnlyDTO getAppointmentByUuid(String uuid) throws AppObjectNotFoundException {
@@ -103,7 +103,7 @@ public class AppointmentService {
     }
 
     /**
-     * Διαγραφή Appointment
+     * Delete Appointment
      */
     @Transactional(rollbackFor = { Exception.class })
     public void deleteAppointment(Long id) throws AppObjectNotFoundException {
@@ -124,7 +124,7 @@ public class AppointmentService {
     }
 
     /**
-     * Paginated list με custom sorting
+     * Paginated list with custom sorting
      */
     @Transactional(readOnly = true)
     public Page<AppointmentReadOnlyDTO> getPaginatedSortedAppointments(int page, int size, String sortBy, String sortDirection) {
@@ -134,7 +134,7 @@ public class AppointmentService {
     }
 
     /**
-     * Business method: Get appointments by client
+     *  Get appointments by client
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByClient(Long clientId) {
@@ -143,7 +143,7 @@ public class AppointmentService {
     }
 
     /**
-     * Business method: Get appointments by user
+     *  Get appointments by user
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByUser(Long userId) {
@@ -152,7 +152,7 @@ public class AppointmentService {
     }
 
     /**
-     * Business method: Get appointments by status
+     * Get appointments by status
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByStatus(AppointmentStatus status) {
@@ -161,7 +161,7 @@ public class AppointmentService {
     }
 
     /**
-     * Business method: Get upcoming appointments
+     * Get upcoming appointments
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getUpcomingAppointments() {
@@ -170,7 +170,7 @@ public class AppointmentService {
     }
 
     /**
-     * Business method: Get appointments for a date range
+     * Get appointments for a date range
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
@@ -179,7 +179,7 @@ public class AppointmentService {
     }
 
     /**
-     * Business method: Get pending email reminders
+     * Get pending email reminders
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getPendingEmailReminders() {
@@ -188,7 +188,7 @@ public class AppointmentService {
     }
 
     /**
-     * Business method: Mark reminder as sent
+     * Mark reminder as sent
      */
     @Transactional(rollbackFor = { Exception.class })
     public void markReminderAsSent(Long appointmentId) throws AppObjectNotFoundException {
