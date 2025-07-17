@@ -36,4 +36,52 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long>,
 
     @Query("SELECT a FROM Appointment a WHERE a.client.id = :clientId AND a.appointmentDateTime BETWEEN :start AND :end ORDER BY a.appointmentDateTime ASC")
     List<Appointment> findClientAppointmentsBetween(@Param("clientId") Long clientId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN FETCH a.user " +
+            "JOIN FETCH a.client c " +
+            "JOIN FETCH c.personalInfo " +
+            "WHERE a.client.id = :clientId")
+    List<Appointment> findByClientIdWithDetails(@Param("clientId") Long clientId);
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN FETCH a.user " +
+            "JOIN FETCH a.client c " +
+            "JOIN FETCH c.personalInfo " +
+            "WHERE a.user.id = :userId")
+    List<Appointment> findByUserIdWithDetails(@Param("userId") Long userId);
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN FETCH a.user " +
+            "JOIN FETCH a.client c " +
+            "JOIN FETCH c.personalInfo " +
+            "WHERE a.appointmentDateTime >= :date AND a.status = 'PENDING' " +
+            "ORDER BY a.appointmentDateTime ASC")
+    List<Appointment> findUpcomingAppointmentsWithDetails(@Param("date") LocalDateTime date);
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN FETCH a.user " +
+            "JOIN FETCH a.client c " +
+            "JOIN FETCH c.personalInfo " +
+            "WHERE a.appointmentDateTime BETWEEN :startDate AND :endDate " +
+            "ORDER BY a.appointmentDateTime ASC")
+    List<Appointment> findByAppointmentDateTimeBetweenWithDetails(@Param("startDate") LocalDateTime startDate,
+                                                                  @Param("endDate") LocalDateTime endDate);
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN FETCH a.user " +
+            "JOIN FETCH a.client c " +
+            "JOIN FETCH c.personalInfo " +
+            "WHERE a.status = :status")
+    List<Appointment> findByStatusWithDetails(@Param("status") AppointmentStatus status);
+
+
+    @Query("SELECT a FROM Appointment a " +
+            "JOIN FETCH a.user " +
+            "JOIN FETCH a.client c " +
+            "JOIN FETCH c.personalInfo " +
+            "WHERE a.emailReminder = true AND a.reminderSent = false AND a.reminderDateTime <= :now " +
+            "ORDER BY a.reminderDateTime ASC")
+    List<Appointment> findPendingRemindersWithDetails(@Param("now") LocalDateTime now);
 }
+
