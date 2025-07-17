@@ -22,10 +22,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-import jakarta.persistence.criteria.Predicate;
+import gr.aueb.cf.system_management_restAPI.core.specifications.ClientSpecification;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -208,57 +206,15 @@ public class ClientService {
      * Helper method  specifications
      */
     private Specification<Client> getSpecsFromFilters(ClientFilters filters) {
-        return (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
-
-            if (StringUtils.hasText(filters.getUuid())) {
-                predicates.add(criteriaBuilder.equal(root.get("uuid"), filters.getUuid()));
-            }
-
-            if (StringUtils.hasText(filters.getClientVat())) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("vat")),
-                        "%" + filters.getClientVat().toLowerCase() + "%"));
-            }
-
-            if (StringUtils.hasText(filters.getUserUsername())) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("user").get("username")),
-                        "%" + filters.getUserUsername().toLowerCase() + "%"));
-            }
-
-            if (StringUtils.hasText(filters.getFirstName())) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("personalInfo").get("firstName")),
-                        "%" + filters.getFirstName().toLowerCase() + "%"));
-            }
-
-            if (StringUtils.hasText(filters.getLastName())) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("personalInfo").get("lastName")),
-                        "%" + filters.getLastName().toLowerCase() + "%"));
-            }
-
-            if (StringUtils.hasText(filters.getEmail())) {
-                predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("personalInfo").get("email")),
-                        "%" + filters.getEmail().toLowerCase() + "%"));
-            }
-
-            if (StringUtils.hasText(filters.getPhone())) {
-                predicates.add(criteriaBuilder.like(
-                        root.get("personalInfo").get("phone"),
-                        "%" + filters.getPhone() + "%"));
-            }
-
-            if (filters.getActive() != null) {
-                predicates.add(criteriaBuilder.equal(
-                        root.get("user").get("isActive"),
-                        filters.getActive()));
-            }
-
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
+        return Specification
+                .where(ClientSpecification.clStringFieldLike("uuid", filters.getUuid()))
+                .and(ClientSpecification.clientUserVatIs(filters.getClientVat()))
+                .and(ClientSpecification.clientUserUsernameIs(filters.getUserUsername()))
+                .and(ClientSpecification.clPersonalInfoFirstNameIs(filters.getFirstName()))
+                .and(ClientSpecification.clPersonalInfoLastNameIs(filters.getLastName()))
+                .and(ClientSpecification.clPersonalInfoEmailIs(filters.getEmail()))
+                .and(ClientSpecification.clPersonalInfoPhoneIs(filters.getPhone()))
+                .and(ClientSpecification.clUserIsActive(filters.getActive()));
     }
 
     /**
