@@ -2,6 +2,9 @@ package gr.aueb.cf.system_management_restAPI.service;
 
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotFoundException;
 import gr.aueb.cf.system_management_restAPI.core.enums.AppointmentStatus;
+import gr.aueb.cf.system_management_restAPI.core.filters.AppointmentFilters;
+import gr.aueb.cf.system_management_restAPI.core.filters.Paginated;
+import gr.aueb.cf.system_management_restAPI.core.specifications.AppointmentSpecification;
 import gr.aueb.cf.system_management_restAPI.dto.AppointmentInsertDTO;
 import gr.aueb.cf.system_management_restAPI.dto.AppointmentReadOnlyDTO;
 import gr.aueb.cf.system_management_restAPI.dto.AppointmentUpdateDTO;
@@ -13,6 +16,7 @@ import gr.aueb.cf.system_management_restAPI.repository.AppointmentRepository;
 import gr.aueb.cf.system_management_restAPI.repository.ClientRepository;
 import gr.aueb.cf.system_management_restAPI.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -114,7 +118,7 @@ public class AppointmentService {
     }
 
     /**
-     * Paginated list όλων των Appointments
+     * Paginated list  Appointments
      */
     @Transactional(readOnly = true)
     public Page<AppointmentReadOnlyDTO> getPaginatedAppointments(int page, int size) {
@@ -134,11 +138,48 @@ public class AppointmentService {
     }
 
     /**
+     * Filtered search - pagination (USING SPECIFICATIONS)
+     */
+    @Transactional(readOnly = true)
+    public Paginated<AppointmentReadOnlyDTO> getAppointmentsFilteredPaginated(AppointmentFilters filters) {
+        Specification<Appointment> spec = getSpecsFromFilters(filters);
+        var filtered = appointmentRepository.findAll(spec, filters.getPageable());
+        return new Paginated<>(filtered.map(mapper::mapToAppointmentReadOnlyDTO));
+    }
+
+    /**
+     * Filtered search no pagination (USING SPECIFICATIONS)
+     */
+    @Transactional(readOnly = true)
+    public List<AppointmentReadOnlyDTO> getAppointmentsFiltered(AppointmentFilters filters) {
+        Specification<Appointment> spec = getSpecsFromFilters(filters);
+        return appointmentRepository.findAll(spec)
+                .stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+    }
+
+    /**
+     * Helper method για specifications
+     */
+    private Specification<Appointment> getSpecsFromFilters(AppointmentFilters filters) {
+        return Specification
+                .where(AppointmentSpecification.apStringFieldLike("uuid", filters.getUuid()))
+                .and(AppointmentSpecification.appointmentUserIdIs(filters.getUserId()))
+                .and(AppointmentSpecification.appointmentClientIdIs(filters.getClientId()))
+                .and(AppointmentSpecification.appointmentUserUsernameIs(filters.getUserUsername()))
+                .and(AppointmentSpecification.appointmentClientVatIs(filters.getClientVat()))
+                .and(AppointmentSpecification.appointmentStatusIs(filters.getStatus()))
+                .and(AppointmentSpecification.appointmentEmailReminderIs(filters.getEmailReminder()))
+                .and(AppointmentSpecification.appointmentReminderSentIs(filters.getReminderSent()))
+                .and(AppointmentSpecification.apUserIsActive(filters.getActive()));
+    }
+
+
+    /**
      *  Get appointments by client
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByClient(Long clientId) {
-        List<Appointment> appointments = appointmentRepository.findByClientId(clientId);
+        List<Appointment> appointments = appointmentRepository.findByClientIdWithDetails(clientId);
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
@@ -147,7 +188,7 @@ public class AppointmentService {
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByUser(Long userId) {
-        List<Appointment> appointments = appointmentRepository.findByUserId(userId);
+        List<Appointment> appointments = appointmentRepository.findByUserIdWithDetails(userId);
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
@@ -156,7 +197,7 @@ public class AppointmentService {
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByStatus(AppointmentStatus status) {
-        List<Appointment> appointments = appointmentRepository.findByStatus(status);
+        List<Appointment> appointments = appointmentRepository.findByStatusWithDetails(status);
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
@@ -165,7 +206,7 @@ public class AppointmentService {
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getUpcomingAppointments() {
-        List<Appointment> appointments = appointmentRepository.findUpcomingAppointments(LocalDateTime.now());
+        List<Appointment> appointments = appointmentRepository.findUpcomingAppointmentsWithDetails(LocalDateTime.now());
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
@@ -174,7 +215,7 @@ public class AppointmentService {
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
-        List<Appointment> appointments = appointmentRepository.findByAppointmentDateTimeBetween(startDate, endDate);
+        List<Appointment> appointments = appointmentRepository.findByAppointmentDateTimeBetweenWithDetails(startDate, endDate);
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
@@ -183,7 +224,7 @@ public class AppointmentService {
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getPendingEmailReminders() {
-        List<Appointment> appointments = appointmentRepository.findPendingReminders(LocalDateTime.now());
+        List<Appointment> appointments = appointmentRepository.findPendingRemindersWithDetails(LocalDateTime.now());
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
