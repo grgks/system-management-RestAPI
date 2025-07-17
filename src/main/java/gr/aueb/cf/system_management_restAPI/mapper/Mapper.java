@@ -5,6 +5,7 @@ import gr.aueb.cf.system_management_restAPI.model.Appointment;
 import gr.aueb.cf.system_management_restAPI.model.Client;
 import gr.aueb.cf.system_management_restAPI.model.PersonalInfo;
 import gr.aueb.cf.system_management_restAPI.model.User;
+import gr.aueb.cf.system_management_restAPI.model.static_data.City;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -48,7 +49,7 @@ public class Mapper {
 
         client.setVat(clientInsertDTO.getVat());
         client.setNotes(clientInsertDTO.getNotes());
-        client.setUuid(UUID.randomUUID().toString());
+
 
         // Map PersonalInfo
         if (clientInsertDTO.getPersonalInfo() != null) {
@@ -114,7 +115,11 @@ public class Mapper {
         personalInfo.setAddress(personalInfoInsertDTO.getAddress());
 
 
-
+        if (personalInfoInsertDTO.getCityId() != null) {
+            City city = new City();
+            city.setId(personalInfoInsertDTO.getCityId());
+            personalInfo.setCity(city);
+        }
         return personalInfo;
     }
 
@@ -130,9 +135,13 @@ public class Mapper {
         existingPersonalInfo.setGender(personalInfoUpdateDTO.getGender());
         existingPersonalInfo.setAddress(personalInfoUpdateDTO.getAddress());
 
+        if (personalInfoUpdateDTO.getCityId() != null) {
 
+            City city = new City();
+            city.setId(personalInfoUpdateDTO.getCityId());
+            existingPersonalInfo.setCity(city);
+        }
     }
-
     //  USER MAPPINGS
 
     /**
@@ -218,7 +227,6 @@ public class Mapper {
     public Appointment mapToAppointmentEntity(AppointmentInsertDTO appointmentInsertDTO) {
         Appointment appointment = new Appointment();
 
-        appointment.setUuid(UUID.randomUUID().toString());
         appointment.setAppointmentDateTime(appointmentInsertDTO.getAppointmentDateTime());
         appointment.setStatus(appointmentInsertDTO.getStatus());
         appointment.setEmailReminder(appointmentInsertDTO.getEmailReminder());
