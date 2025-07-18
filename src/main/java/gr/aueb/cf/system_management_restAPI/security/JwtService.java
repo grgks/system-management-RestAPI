@@ -20,8 +20,7 @@ public class JwtService {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.expiration:7200000}")
-    private long jwtExpiration;
+    private final long jwtExpiration = 7200000L;
 
     public String generateToken(String username, String role) {
         var claims = new HashMap<String, Object>();
