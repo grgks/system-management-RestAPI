@@ -42,17 +42,17 @@ public class SecurityConfiguration {
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(myCustomAuthenticationEntryPoint()))
                 .exceptionHandling(exceptions -> exceptions.accessDeniedHandler(myCustomAccessDeniedHandler()))
                 .authorizeHttpRequests(req -> req
-                        // Public endpoints - χωρίς authentication
+                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/clients/save").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
-                        // Protected endpoints με roles (όπως το teacher παράδειγμα)
+                        // Protected endpoints με roles
                         .requestMatchers("/api/clients/**").hasAnyAuthority(Role.CLIENT.name(), Role.SUPER_ADMIN.name())
                         .requestMatchers("/api/appointments/**").hasAnyAuthority(Role.CLIENT.name(), Role.PATIENT.name(), Role.SUPER_ADMIN.name())
                         .requestMatchers("/api/admin/**").hasAnyAuthority(Role.SUPER_ADMIN.name())
 
-                        // Όλα τα άλλα χρειάζονται authentication
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement((session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)))
