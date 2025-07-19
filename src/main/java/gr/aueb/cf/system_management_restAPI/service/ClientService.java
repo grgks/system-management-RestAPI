@@ -1,7 +1,9 @@
 package gr.aueb.cf.system_management_restAPI.service;
 
+import gr.aueb.cf.system_management_restAPI.core.enums.Role;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectInvalidArgumentException;
+import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotAuthorizedException;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotFoundException;
 import gr.aueb.cf.system_management_restAPI.core.filters.ClientFilters;
 import gr.aueb.cf.system_management_restAPI.core.filters.Paginated;
@@ -20,10 +22,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import gr.aueb.cf.system_management_restAPI.core.specifications.ClientSpecification;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +41,7 @@ public class ClientService {
     private final UserRepository userRepository;
     private final PersonalInfoRepository personalInfoRepository;
     private final Mapper mapper;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * Create new Client
@@ -47,48 +54,74 @@ public class ClientService {
      */
     @Transactional(rollbackFor = { Exception.class })
     public ClientReadOnlyDTO saveClient(ClientInsertDTO clientInsertDTO)
-            throws AppObjectAlreadyExists, AppObjectInvalidArgumentException, AppObjectNotFoundException {
+            throws AppObjectAlreadyExists, AppObjectInvalidArgumentException, AppObjectNotFoundException, AppObjectNotAuthorizedException {
 
-        //  Check if user exists
-        User existingUser = userRepository.findById(clientInsertDTO.getUserId())
-                .orElseThrow(() -> new AppObjectNotFoundException("User", "User with id: " + clientInsertDTO.getUserId() + " not found"));
-
-        //  Check if user already has a client
-        if (clientRepository.findByUserUsername(existingUser.getUsername()).isPresent()) {
-            throw new AppObjectAlreadyExists("Client",
-                    "User with username: " + existingUser.getUsername() + " already has a client");
+        // Check if username already exists
+        if (userRepository.findByUsername(clientInsertDTO.getUser().getUsername()).isPresent()) {
+            throw new AppObjectAlreadyExists("User",
+                    "User with username: " + clientInsertDTO.getUser().getUsername() + " already exists");
         }
 
-        //  Check if client with same VAT exists
+        // Check if email already exists
+        if (userRepository.findByEmail(clientInsertDTO.getUser().getEmail()).isPresent()) {
+            throw new AppObjectAlreadyExists("User",
+                    "User with email: " + clientInsertDTO.getUser().getEmail() + " already exists");
+        }
+
+        // Check if client with same VAT exists
         if (clientInsertDTO.getVat() != null && clientRepository.findByVat(clientInsertDTO.getVat()).isPresent()) {
             throw new AppObjectAlreadyExists("Client",
                     "Client with VAT: " + clientInsertDTO.getVat() + " already exists");
         }
 
-        //  Check if personal info with same phone exists
+        // Check if personal info with same phone exists
         if (clientInsertDTO.getPersonalInfo().getPhone() != null &&
                 personalInfoRepository.findByPhone(clientInsertDTO.getPersonalInfo().getPhone()).isPresent()) {
             throw new AppObjectAlreadyExists("PersonalInfo",
                     "Personal info with phone: " + clientInsertDTO.getPersonalInfo().getPhone() + " already exists");
         }
 
-        //  Check if personal info with same email exists (if unique)
+        // Check if personal info with same email exists
         if (clientInsertDTO.getPersonalInfo().getEmail() != null &&
                 personalInfoRepository.findByEmail(clientInsertDTO.getPersonalInfo().getEmail()).isPresent()) {
             throw new AppObjectAlreadyExists("PersonalInfo",
                     "Personal info with email: " + clientInsertDTO.getPersonalInfo().getEmail() + " already exists");
         }
 
-        // Map DTO to Entity
+        // Only SUPER_ADMIN can create SUPER_ADMIN users
+        if (clientInsertDTO.getUser().getRole() == Role.SUPER_ADMIN) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (authentication == null || !authentication.isAuthenticated() ||
+                    authentication instanceof AnonymousAuthenticationToken) {
+                throw new AppObjectNotAuthorizedException("User",
+                        "Authentication required to create SUPER_ADMIN users");
+            }
+
+            boolean isSuperAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(authority -> authority.getAuthority().equals("SUPER_ADMIN"));
+
+            if (!isSuperAdmin) {
+                throw new AppObjectNotAuthorizedException("User",
+                        "Only SUPER_ADMIN can create SUPER_ADMIN users");
+            }
+        }
+
+        // Create NEW User first
+        User newUser = mapper.mapToUserEntity(clientInsertDTO.getUser());
+        newUser.setPassword(passwordEncoder.encode(clientInsertDTO.getUser().getPassword()));
+        newUser.setUuid(UUID.randomUUID().toString());
+        newUser.setCreatedAt(java.time.LocalDateTime.now());
+        newUser.setUpdatedAt(java.time.LocalDateTime.now());
+
+        User savedUser = userRepository.save(newUser);
+
+        // Map DTO to Client Entity
         Client client = mapper.mapToClientEntity(clientInsertDTO);
-
-        // Set the existing user
-        client.setUser(existingUser);
-
-        // Generate UUID  client
+        client.setUser(savedUser);
         client.setUuid(UUID.randomUUID().toString());
 
-        // Save client (cascade saves personalInfo)
+        // Save client
         Client savedClient = clientRepository.save(client);
 
         return mapper.mapToClientReadOnlyDTO(savedClient);
