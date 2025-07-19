@@ -14,8 +14,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ClientInsertDTO {
 
-    @NotNull(message = "User ID is required")
-    private Long userId;
+    @NotNull(message = "Is active must not be null")
+    private Boolean isActive;
+
+    @Valid
+    @NotNull(message = "User details must not be null")
+    private UserInsertDTO user;
 
     @Valid
     @NotNull(message = "Personal info is required")
