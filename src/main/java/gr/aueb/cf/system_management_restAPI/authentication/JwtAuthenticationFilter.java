@@ -35,8 +35,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
+
+        LOGGER.info("Processing request path: {}", path);
+        LOGGER.info("Checking if path equals '/api/clients/save': {}", path.equals("/api/clients/save"));
+
         // Skip Swagger-related paths
         if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") || path.equals("/swagger-ui.html")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (path.equals("/api/clients/save")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (path.startsWith("/api/auth/")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -47,7 +61,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String userRole;
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+            LOGGER.info("Authorization header missing or invalid");
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setContentType("application/json");
+            response.getWriter().write("{\"code\": \"userNotAuthenticated\", \"description\": \"User must authenticate in order to access this endpoint\"}");
+           // filterChain.doFilter(request, response);
             return;
         }
         jwt = authHeader.substring(7);
