@@ -46,7 +46,7 @@ public class PersonalInfo extends AbstractEntity {
     @Column(name = "address")
     private String address;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "city_id")
     private City city;
 }
