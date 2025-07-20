@@ -6,6 +6,7 @@ import gr.aueb.cf.system_management_restAPI.model.Client;
 import gr.aueb.cf.system_management_restAPI.model.PersonalInfo;
 import gr.aueb.cf.system_management_restAPI.model.User;
 import gr.aueb.cf.system_management_restAPI.model.static_data.City;
+import gr.aueb.cf.system_management_restAPI.repository.CityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ import java.util.UUID;
 public class Mapper {
 
     private final PasswordEncoder passwordEncoder;
-
+    private final CityRepository cityRepository;
     // CLIENT MAPPINGS
 
     /**
@@ -93,7 +94,9 @@ public class Mapper {
         dto.setUpdatedAt(personalInfo.getUpdatedAt());
 
         // Map City name
+        //System.out.println("City object: " + personalInfo.getCity());
         if (personalInfo.getCity() != null) {
+           // System.out.println("City name: " + personalInfo.getCity().getName());
             dto.setCityName(personalInfo.getCity().getName());
         }
 
@@ -116,8 +119,8 @@ public class Mapper {
 
 
         if (personalInfoInsertDTO.getCityId() != null) {
-            City city = new City();
-            city.setId(personalInfoInsertDTO.getCityId());
+            City city =  cityRepository.findById(personalInfoInsertDTO.getCityId())
+                    .orElse(null);
             personalInfo.setCity(city);
         }
         return personalInfo;
