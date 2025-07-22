@@ -44,7 +44,7 @@ public class AppointmentService {
     private EntityManager entityManager;
 
     /**
-     * Create new Appointment with validations
+     * Create new Appointment για validations
      */
     @Transactional(rollbackFor = { Exception.class })
     public AppointmentReadOnlyDTO saveAppointment(AppointmentInsertDTO appointmentInsertDTO)
@@ -176,7 +176,7 @@ public class AppointmentService {
     }
 
     /**
-     * Filtered search - pagination (USING SPECIFICATIONS)
+     * Filtered search - pagination
      */
     @Transactional(readOnly = true)
     public Paginated<AppointmentReadOnlyDTO> getAppointmentsFilteredPaginated(AppointmentFilters filters) {
@@ -186,7 +186,7 @@ public class AppointmentService {
     }
 
     /**
-     * Filtered search no pagination (USING SPECIFICATIONS)
+     * Filtered search no pagination
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsFiltered(AppointmentFilters filters) {
@@ -212,7 +212,7 @@ public class AppointmentService {
     }
 
     /**
-     * Get appointments by client - ΜΕ JOIN FETCH ΣΤΟ SERVICE
+     * Get appointments by client
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByClient(Long clientId) {
@@ -231,7 +231,7 @@ public class AppointmentService {
     }
 
     /**
-     * Get appointments by user - ΜΕ JOIN FETCH ΣΤΟ SERVICE
+     * Get appointments by user
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByUser(Long userId) {
@@ -250,7 +250,7 @@ public class AppointmentService {
     }
 
     /**
-     * Get appointments by status - ΜΕ JOIN FETCH ΣΤΟ SERVICE
+     * Get appointments by status
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByStatus(AppointmentStatus status) {
@@ -269,7 +269,7 @@ public class AppointmentService {
     }
 
     /**
-     * Get upcoming appointments - BUSINESS LOGIC ΜΕ JOIN FETCH ΣΤΟ SERVICE
+     * Get upcoming appointments
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getUpcomingAppointments() {
@@ -290,7 +290,7 @@ public class AppointmentService {
     }
 
     /**
-     * Get appointments for a date range - ΜΕ JOIN FETCH ΣΤΟ SERVICE
+     * Get appointments for a date range
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
@@ -311,7 +311,7 @@ public class AppointmentService {
     }
 
     /**
-     * Get pending email reminders - BUSINESS LOGIC ΜΕ JOIN FETCH ΣΤΟ SERVICE
+     * Get pending email reminders
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getPendingEmailReminders() {
@@ -335,7 +335,7 @@ public class AppointmentService {
     }
 
     /**
-     * Get client appointments between dates - BUSINESS LOGIC ΜΕ JOIN FETCH ΣΤΟ SERVICE
+     * Get client appointments between dates
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getClientAppointmentsBetweenDates(Long clientId, LocalDateTime startDate, LocalDateTime endDate) {
