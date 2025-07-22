@@ -1,6 +1,7 @@
 package gr.aueb.cf.system_management_restAPI.rest;
 
 
+import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotFoundException;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.ValidationException;
 import gr.aueb.cf.system_management_restAPI.core.enums.AppointmentStatus;
@@ -113,7 +114,7 @@ public class AppointmentRestController {
     @PostMapping("/appointments/save")
     public ResponseEntity<AppointmentReadOnlyDTO> saveAppointment(
             @Valid @RequestBody AppointmentInsertDTO appointmentInsertDTO,
-            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException {
+            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException, AppObjectAlreadyExists {
 
         if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult);
@@ -152,7 +153,7 @@ public class AppointmentRestController {
     public ResponseEntity<AppointmentReadOnlyDTO> updateAppointment(
             @PathVariable Long id,
             @Valid @RequestBody AppointmentUpdateDTO appointmentUpdateDTO,
-            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException {
+            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException, AppObjectAlreadyExists {
 
         if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult);
