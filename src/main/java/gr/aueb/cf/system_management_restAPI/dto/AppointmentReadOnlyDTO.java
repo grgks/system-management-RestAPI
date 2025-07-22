@@ -18,6 +18,8 @@ public class AppointmentReadOnlyDTO {
     private String uuid;
     private String username;
     private String clientName;
+    private String clientLastName;
+    private String clientPhone;
     private LocalDateTime appointmentDateTime;
     private AppointmentStatus status;
     private Boolean emailReminder;
