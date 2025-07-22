@@ -30,6 +30,9 @@ import gr.aueb.cf.system_management_restAPI.core.specifications.ClientSpecificat
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,6 +45,9 @@ public class ClientService {
     private final PersonalInfoRepository personalInfoRepository;
     private final Mapper mapper;
     private final PasswordEncoder passwordEncoder;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     /**
      * Create new Client
@@ -218,7 +224,7 @@ public class ClientService {
     }
 
     /**
-     * Filtered search - pagination
+     * Filtered search - pagination (USING SPECIFICATIONS)
      */
     @Transactional(readOnly = true)
     public Paginated<ClientReadOnlyDTO> getClientsFilteredPaginated(ClientFilters filters) {
@@ -227,7 +233,7 @@ public class ClientService {
     }
 
     /**
-     * Filtered search no pagination
+     * Filtered search no pagination (USING SPECIFICATIONS)
      */
     @Transactional(readOnly = true)
     public List<ClientReadOnlyDTO> getClientsFiltered(ClientFilters filters) {
@@ -236,7 +242,7 @@ public class ClientService {
     }
 
     /**
-     * Helper method  specifications
+     * Helper method για specifications
      */
     private Specification<Client> getSpecsFromFilters(ClientFilters filters) {
         return Specification
@@ -251,20 +257,38 @@ public class ClientService {
     }
 
     /**
-     *  Search clients by full name
+     * Search clients by full name
      */
     @Transactional(readOnly = true)
     public List<ClientReadOnlyDTO> searchClientsByName(String name) {
-        List<Client> clients = clientRepository.findByFullNameContaining(name);
+        String jpql = "SELECT c FROM Client c " +
+                "JOIN FETCH c.user " +
+                "JOIN FETCH c.personalInfo " +
+                "WHERE c.personalInfo.firstName LIKE :name OR c.personalInfo.lastName LIKE :name";
+
+        List<Client> clients = entityManager
+                .createQuery(jpql, Client.class)
+                .setParameter("name", "%" + name + "%")
+                .getResultList();
+
         return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
     }
 
     /**
-     *  Get clients by last name
+     * Get clients by last name
      */
     @Transactional(readOnly = true)
     public List<ClientReadOnlyDTO> getClientsByLastName(String lastName) {
-        List<Client> clients = clientRepository.findByPersonalInfoLastNameContainingIgnoreCase(lastName);
+        String jpql = "SELECT c FROM Client c " +
+                "JOIN FETCH c.user " +
+                "JOIN FETCH c.personalInfo " +
+                "WHERE LOWER(c.personalInfo.lastName) LIKE LOWER(:lastName)";
+
+        List<Client> clients = entityManager
+                .createQuery(jpql, Client.class)
+                .setParameter("lastName", "%" + lastName + "%")
+                .getResultList();
+
         return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
     }
 }
