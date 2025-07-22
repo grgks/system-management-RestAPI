@@ -23,7 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+import org.springframework.http.HttpMethod;
 import java.util.List;
 
 @Configuration
@@ -42,10 +42,12 @@ public class SecurityConfiguration {
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(myCustomAuthenticationEntryPoint()))
                 .exceptionHandling(exceptions -> exceptions.accessDeniedHandler(myCustomAccessDeniedHandler()))
                 .authorizeHttpRequests(req -> req
-                        // Public endpoints
+//                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/clients/save").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+
+                                // Client save - allow both authenticated and unauthenticated
+                                .requestMatchers(HttpMethod.POST, "/api/clients/save").permitAll()
 
                         // Protected endpoints με roles
                         .requestMatchers("/api/clients/**").hasAnyAuthority(Role.CLIENT.name(), Role.SUPER_ADMIN.name())
@@ -54,7 +56,7 @@ public class SecurityConfiguration {
 
 
                         .anyRequest().authenticated()
-                )
+                        )
                 .sessionManagement((session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
