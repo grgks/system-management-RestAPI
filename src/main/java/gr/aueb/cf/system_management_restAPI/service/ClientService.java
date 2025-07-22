@@ -224,7 +224,7 @@ public class ClientService {
     }
 
     /**
-     * Filtered search - pagination (USING SPECIFICATIONS)
+     * Filtered search - pagination
      */
     @Transactional(readOnly = true)
     public Paginated<ClientReadOnlyDTO> getClientsFilteredPaginated(ClientFilters filters) {
@@ -233,7 +233,7 @@ public class ClientService {
     }
 
     /**
-     * Filtered search no pagination (USING SPECIFICATIONS)
+     * Filtered search no pagination
      */
     @Transactional(readOnly = true)
     public List<ClientReadOnlyDTO> getClientsFiltered(ClientFilters filters) {
