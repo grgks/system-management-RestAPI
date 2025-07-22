@@ -2,6 +2,7 @@ package gr.aueb.cf.system_management_restAPI.dto;
 
 import gr.aueb.cf.system_management_restAPI.core.enums.AppointmentStatus;
 import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 public class AppointmentUpdateDTO {
 
     @NotNull(message = "Appointment date time must not be null")
-    @Future(message = "Appointment must be in the future")
+    @FutureOrPresent(message = "Appointment must be in the future or present")
     private LocalDateTime appointmentDateTime;
 
     @NotNull(message = "Status must not be null")

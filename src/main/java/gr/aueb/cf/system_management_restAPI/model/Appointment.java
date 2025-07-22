@@ -38,7 +38,7 @@ public class Appointment extends AbstractEntity {
     private LocalDateTime appointmentDateTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, length = 20)
     private AppointmentStatus status = AppointmentStatus.PENDING;
 
     @Column(name = "email_reminder")

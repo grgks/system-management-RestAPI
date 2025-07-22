@@ -149,7 +149,7 @@ public class AppointmentRestController {
                     )
             }
     )
-    @PutMapping("/appointments/{id}")
+    @PutMapping("/appointments/update/{id}")
     public ResponseEntity<AppointmentReadOnlyDTO> updateAppointment(
             @PathVariable Long id,
             @Valid @RequestBody AppointmentUpdateDTO appointmentUpdateDTO,
@@ -404,14 +404,26 @@ public class AppointmentRestController {
             }
     )
     @PutMapping("/appointments/{id}/reminder/sent")
-    public ResponseEntity<Void> markReminderAsSent(@PathVariable Long id) throws AppObjectNotFoundException {
+    public ResponseEntity<Map<String, Object>> markReminderAsSent(@PathVariable Long id) throws AppObjectNotFoundException {
         try {
             appointmentService.markReminderAsSent(id);
             LOGGER.info("Reminder marked as sent for appointment id: {}", id);
-            return new ResponseEntity<>(HttpStatus.OK);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Reminder marked as sent successfully");
+            response.put("appointmentId", id);
+            response.put("timestamp", LocalDateTime.now());
+
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             LOGGER.warn("Could not mark reminder as sent for appointment id: {}", id, e);
             throw e;
         }
     }
-}
+
+//    @PutMapping("/appointments/test")
+//    public ResponseEntity<String> testPutEndpoint() {
+//        return ResponseEntity.ok("PUT test successful");
+//    }
+  }
