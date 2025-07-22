@@ -219,6 +219,8 @@ public class Mapper {
         if (appointment.getClient() != null && appointment.getClient().getPersonalInfo() != null) {
             PersonalInfo personalInfo = appointment.getClient().getPersonalInfo();
             dto.setClientName(personalInfo.getFirstName() + " " + personalInfo.getLastName());
+            dto.setClientLastName(personalInfo.getLastName());
+            dto.setClientPhone(personalInfo.getPhone());
         }
 
         return dto;
