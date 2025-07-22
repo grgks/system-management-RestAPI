@@ -200,6 +200,26 @@ public class AppointmentRestController {
     }
 
     @Operation(
+            summary = "Get appointments by client phone",
+            security = @SecurityRequirement(name = "Bearer Authentication"),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Appointments found",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = AppointmentReadOnlyDTO.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping("/appointments/phone/{phone}")
+    public ResponseEntity<List<AppointmentReadOnlyDTO>> getAppointmentsByClientPhone(@PathVariable String phone) throws AppObjectNotFoundException {
+        List<AppointmentReadOnlyDTO> appointments = appointmentService.getAppointmentsByClientPhone(phone);
+        return ResponseEntity.ok(appointments);
+    }
+
+    @Operation(
             summary = "Get appointment by UUID",
             security = @SecurityRequirement(name = "Bearer Authentication"),
             responses = {
