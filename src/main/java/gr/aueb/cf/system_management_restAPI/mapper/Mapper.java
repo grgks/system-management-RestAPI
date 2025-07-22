@@ -140,8 +140,8 @@ public class Mapper {
 
         if (personalInfoUpdateDTO.getCityId() != null) {
 
-            City city = new City();
-            city.setId(personalInfoUpdateDTO.getCityId());
+            City city =cityRepository.findById(personalInfoUpdateDTO.getCityId())
+                    .orElse(null);
             existingPersonalInfo.setCity(city);
         }
     }
