@@ -37,15 +37,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         LOGGER.info("Processing request path: {}", path);
-        LOGGER.info("Checking if path equals '/api/clients/save': {}", path.equals("/api/clients/save"));
 
         // Skip Swagger-related paths
         if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") || path.equals("/swagger-ui.html")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if (path.equals("/api/clients/save")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -59,6 +53,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt;
         String username;
         String userRole;
+
+        //process token if present, but don't require it
+        if (path.equals("/api/clients/save")) {
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                jwt = authHeader.substring(7);
+                try {
+                    username = jwtService.extractSubject(jwt);
+                    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                        if (jwtService.isTokenValid(jwt, userDetails)) {
+                            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+                            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                            SecurityContextHolder.getContext().setAuthentication(authToken);
+                            LOGGER.info("Authentication set for client/save with role: {}", userDetails.getAuthorities());
+                        }
+                    }
+                } catch (Exception e) {
+                    LOGGER.warn("Invalid token for /api/clients/save, proceeding without auth: {}", e.getMessage());
+                }
+            }
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             LOGGER.info("Authorization header missing or invalid");
