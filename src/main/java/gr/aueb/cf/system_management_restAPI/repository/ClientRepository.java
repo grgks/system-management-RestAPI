@@ -13,7 +13,9 @@ public interface ClientRepository extends JpaRepository<Client, Long>, JpaSpecif
     Optional<Client> findByUserUsername(String username);
     Optional<Client> findByUuid(String uuid);
     Optional<Client> findByVat(String vat);
+    Optional<Client> findByPersonalInfoPhone(String phone);
 
     boolean existsByUserUsername(String username);
     boolean existsByVat(String vat);
+
 }

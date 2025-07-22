@@ -1,6 +1,5 @@
 package gr.aueb.cf.system_management_restAPI.model;
 
-import gr.aueb.cf.system_management_restAPI.core.enums.GenderType;
 import gr.aueb.cf.system_management_restAPI.core.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -13,10 +12,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -42,22 +39,6 @@ public class User extends AbstractEntity implements UserDetails {
 
     @Column(name = "email", unique = true, nullable = false)
     private String email;
-
-    @Column(name = "first_name", nullable = false)
-    private String firstName;
-
-    @Column(name = "last_name", nullable = false)
-    private String lastName;
-
-    @Column(name = "phone")
-    private String phone;
-
-    @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "gender")
-    private GenderType gender;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)

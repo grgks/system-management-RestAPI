@@ -157,11 +157,6 @@ public class Mapper {
         dto.setUuid(user.getUuid());
         dto.setUsername(user.getUsername());
         dto.setEmail(user.getEmail());
-        dto.setFirstName(user.getFirstName());
-        dto.setLastName(user.getLastName());
-        dto.setPhone(user.getPhone());
-        dto.setDateOfBirth(user.getDateOfBirth());
-        dto.setGender(user.getGender());
         dto.setRole(user.getRole());
         dto.setIsActive(user.getIsActive());
         dto.setCreatedAt(user.getCreatedAt());
@@ -180,11 +175,6 @@ public class Mapper {
         user.setUsername(userInsertDTO.getUsername());
         user.setPassword(passwordEncoder.encode(userInsertDTO.getPassword())); // Encrypt password
         user.setEmail(userInsertDTO.getEmail());
-        user.setFirstName(userInsertDTO.getFirstName());
-        user.setLastName(userInsertDTO.getLastName());
-        user.setPhone(userInsertDTO.getPhone());
-        user.setDateOfBirth(userInsertDTO.getDateOfBirth());
-        user.setGender(userInsertDTO.getGender());
         user.setRole(userInsertDTO.getRole());
         user.setIsActive(userInsertDTO.getIsActive());
 

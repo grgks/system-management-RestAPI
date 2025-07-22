@@ -205,6 +205,37 @@ public class ClientRestController {
     }
 
     @Operation(
+            summary = "Get client by phone",
+            security = @SecurityRequirement(name = "Bearer Authentication"),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Client found",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ClientReadOnlyDTO.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Client not found",
+                            content = @Content
+                    )
+            }
+    )
+    @GetMapping("/clients/phone/{phone}")
+    public ResponseEntity<ClientReadOnlyDTO> getClientByPhone(@PathVariable String phone) throws AppObjectNotFoundException {
+        try {
+            ClientReadOnlyDTO clientReadOnlyDTO = clientService.getClientByPhone(phone);
+            return new ResponseEntity<>(clientReadOnlyDTO, HttpStatus.OK);
+        } catch (Exception e) {
+            LOGGER.warn("Could not get client by phone: {}", phone, e);
+            throw e;
+        }
+    }
+
+
+    @Operation(
             summary = "Get client by username",
             security = @SecurityRequirement(name = "Bearer Authentication"),
             responses = {

@@ -32,20 +32,6 @@ public class UserInsertDTO {
     @Email(message = "Invalid email format")
     private String email;
 
-    @NotEmpty(message = "First name must not be empty")
-    private String firstName;
-
-    @NotEmpty(message = "Last name must not be empty")
-    private String lastName;
-
-    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must be exactly 10 digits")
-    private String phone;
-
-    @NotNull(message = "Date of birth must not be null")
-    private LocalDate dateOfBirth;
-
-    @NotNull(message = "Gender must not be null")
-    private GenderType gender;
 
     @NotNull(message = "Role must not be null")
     private Role role;

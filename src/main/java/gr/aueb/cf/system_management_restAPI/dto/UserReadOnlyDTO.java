@@ -20,11 +20,6 @@ public class UserReadOnlyDTO {
     private String uuid;
     private String username;
     private String email;
-    private String firstName;
-    private String lastName;
-    private String phone;
-    private LocalDate dateOfBirth;
-    private GenderType gender;
     private Role role;
     private Boolean isActive;
     private LocalDateTime createdAt;
