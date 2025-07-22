@@ -41,6 +41,9 @@ A comprehensive **Spring Boot REST API** for managing client appointments and us
 - **Role-based Design** ready for extension (CLIENT, PATIENT, SUPER_ADMIN)
 - **PATIENT role** implemented to demonstrate scalability potential
 - **Modular Structure** - new entities can be added without refactoring
+- **Clean Architecture** - Repository pattern with business logic in Service layer
+- **EntityManager Integration** - optimized queries with JOIN FETCH for performance
+- **Comprehensive Validation** - business rules enforcement at service level 
 - **Clean separation** of Controllers, Services, Repositories per entity
 - **Future-proof design** for easy horizontal expansion
 
@@ -55,13 +58,13 @@ A comprehensive **Spring Boot REST API** for managing client appointments and us
 - **Backend**: Spring Boot 3.4.7
 - **Security**: Spring Security + JWT
 - **Database**: MySQL 8.0
-- **ORM**: Spring Data JPA + Hibernate
-- **Validation**: Bean Validation (JSR-303)
+- **ORM**: Spring Data JPA + Hibernate **with EntityManager for complex queries**
+- **Validation**: Bean Validation  **+ Custom Business Validation**
 - **Documentation**: OpenAPI 3.0 + Swagger UI
 - **Build Tool**: Gradle
 - **Java Version**: 17 (Amazon Corretto)
-- **Architecture**: Scalable multi-role design with clean layer separation
-
+- **Architecture**: **Clean layered architecture** with optimal performance
+  
 ## 📋 Prerequisites
 
 - **Java 17** or higher
