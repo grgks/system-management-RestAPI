@@ -268,6 +268,32 @@ public class AppointmentService {
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
+
+    /**
+     * Get appointments by client phone
+     */
+    @Transactional(readOnly = true)
+    public List<AppointmentReadOnlyDTO> getAppointmentsByClientPhone(String phone) throws AppObjectNotFoundException {
+        String jpql = "SELECT a FROM Appointment a " +
+                "JOIN FETCH a.user " +
+                "JOIN FETCH a.client c " +
+                "JOIN FETCH c.personalInfo " +
+                "WHERE c.personalInfo.phone = :phone";
+
+        List<Appointment> appointments = entityManager
+                .createQuery(jpql, Appointment.class)
+                .setParameter("phone", phone)
+                .getResultList();
+
+        if (appointments.isEmpty()) {
+            throw new AppObjectNotFoundException("Appointments", "No appointments found for phone: " + phone);
+        }
+
+        return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+    }
+
+
+
     /**
      * Get upcoming appointments
      */
