@@ -182,6 +182,17 @@ public class ClientService {
     }
 
     /**
+     * find Client by phoneNumber
+     */
+    @Transactional(readOnly = true)
+    public ClientReadOnlyDTO getClientByPhone(String phone) throws AppObjectNotFoundException {
+        Client client = clientRepository.findByPersonalInfoPhone(phone)
+                .orElseThrow(() -> new AppObjectNotFoundException("Client", "Client with phone: " + phone + " not found"));
+
+        return mapper.mapToClientReadOnlyDTO(client);
+    }
+
+    /**
      * find Client by Username
      */
     @Transactional(readOnly = true)

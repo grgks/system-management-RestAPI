@@ -396,4 +396,29 @@ public class ClientRestController {
             throw e;
         }
     }
+
+    @Operation(
+            summary = "Get clients by last name",
+            security = @SecurityRequirement(name = "Bearer Authentication"),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Clients Found",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = ClientReadOnlyDTO.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping("/clients/lastname/{lastName}")
+    public ResponseEntity<List<ClientReadOnlyDTO>> getClientsByLastName(@PathVariable String lastName) {
+        try {
+            List<ClientReadOnlyDTO> clients = clientService.getClientsByLastName(lastName);
+            return ResponseEntity.ok(clients);
+        } catch (Exception e) {
+            LOGGER.warn("Could not get clients by last name: {}", lastName, e);
+            throw e;
+        }
+    }
 }
