@@ -1,6 +1,7 @@
 package gr.aueb.cf.system_management_restAPI.service;
 
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotFoundException;
+import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
 import gr.aueb.cf.system_management_restAPI.core.enums.AppointmentStatus;
 import gr.aueb.cf.system_management_restAPI.core.filters.AppointmentFilters;
 import gr.aueb.cf.system_management_restAPI.core.filters.Paginated;
@@ -24,6 +25,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -37,12 +40,15 @@ public class AppointmentService {
     private final ClientRepository clientRepository;
     private final Mapper mapper;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     /**
      * Create new Appointment with validations
      */
     @Transactional(rollbackFor = { Exception.class })
     public AppointmentReadOnlyDTO saveAppointment(AppointmentInsertDTO appointmentInsertDTO)
-            throws AppObjectNotFoundException {
+            throws AppObjectNotFoundException, AppObjectAlreadyExists {
 
         // Find user
         User existingUser = userRepository.findById(appointmentInsertDTO.getUserId())
@@ -51,6 +57,19 @@ public class AppointmentService {
         // Find client
         Client existingClient = clientRepository.findById(appointmentInsertDTO.getClientId())
                 .orElseThrow(() -> new AppObjectNotFoundException("Client", "Client with id: " + appointmentInsertDTO.getClientId() + " not found"));
+
+        // Check if client already has appointment at this exact time
+        String jpql = "SELECT a FROM Appointment a WHERE a.client.id = :clientId AND a.appointmentDateTime = :dateTime";
+        List<Appointment> existingAppointments = entityManager
+                .createQuery(jpql, Appointment.class)
+                .setParameter("clientId", appointmentInsertDTO.getClientId())
+                .setParameter("dateTime", appointmentInsertDTO.getAppointmentDateTime())
+                .getResultList();
+
+        if (!existingAppointments.isEmpty()) {
+            throw new AppObjectAlreadyExists("Appointment",
+                    "Client already has an appointment at " + appointmentInsertDTO.getAppointmentDateTime());
+        }
 
         // Map DTO to Entity
         Appointment appointment = mapper.mapToAppointmentEntity(appointmentInsertDTO);
@@ -71,11 +90,30 @@ public class AppointmentService {
      */
     @Transactional(rollbackFor = { Exception.class })
     public AppointmentReadOnlyDTO updateAppointment(Long id, AppointmentUpdateDTO appointmentUpdateDTO)
-            throws AppObjectNotFoundException {
+            throws AppObjectNotFoundException, AppObjectAlreadyExists {
 
         // Find existing appointment
         Appointment existingAppointment = appointmentRepository.findById(id)
                 .orElseThrow(() -> new AppObjectNotFoundException("Appointment", "Appointment with id: " + id + " not found"));
+
+        // Check if appointment time changed and validate new time
+        if (appointmentUpdateDTO.getAppointmentDateTime() != null &&
+                !appointmentUpdateDTO.getAppointmentDateTime().equals(existingAppointment.getAppointmentDateTime())) {
+
+            // Check if client already has another appointment at the new time (excluding current appointment)
+            String jpql = "SELECT a FROM Appointment a WHERE a.client.id = :clientId AND a.appointmentDateTime = :dateTime AND a.id != :currentId";
+            List<Appointment> conflictingAppointments = entityManager
+                    .createQuery(jpql, Appointment.class)
+                    .setParameter("clientId", existingAppointment.getClient().getId())
+                    .setParameter("dateTime", appointmentUpdateDTO.getAppointmentDateTime())
+                    .setParameter("currentId", id)
+                    .getResultList();
+
+            if (!conflictingAppointments.isEmpty()) {
+                throw new AppObjectAlreadyExists("Appointment",
+                        "Client already has an appointment at " + appointmentUpdateDTO.getAppointmentDateTime());
+            }
+        }
 
         // Update appointment fields
         mapper.updateAppointmentFromDTO(appointmentUpdateDTO, existingAppointment);
@@ -118,7 +156,7 @@ public class AppointmentService {
     }
 
     /**
-     * Paginated list  Appointments
+     * Paginated list Appointments
      */
     @Transactional(readOnly = true)
     public Page<AppointmentReadOnlyDTO> getPaginatedAppointments(int page, int size) {
@@ -173,58 +211,149 @@ public class AppointmentService {
                 .and(AppointmentSpecification.apUserIsActive(filters.getActive()));
     }
 
-
     /**
-     *  Get appointments by client
+     * Get appointments by client - ΜΕ JOIN FETCH ΣΤΟ SERVICE
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByClient(Long clientId) {
-        List<Appointment> appointments = appointmentRepository.findByClientIdWithDetails(clientId);
+        String jpql = "SELECT a FROM Appointment a " +
+                "JOIN FETCH a.user " +
+                "JOIN FETCH a.client c " +
+                "JOIN FETCH c.personalInfo " +
+                "WHERE a.client.id = :clientId";
+
+        List<Appointment> appointments = entityManager
+                .createQuery(jpql, Appointment.class)
+                .setParameter("clientId", clientId)
+                .getResultList();
+
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
     /**
-     *  Get appointments by user
+     * Get appointments by user - ΜΕ JOIN FETCH ΣΤΟ SERVICE
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByUser(Long userId) {
-        List<Appointment> appointments = appointmentRepository.findByUserIdWithDetails(userId);
+        String jpql = "SELECT a FROM Appointment a " +
+                "JOIN FETCH a.user " +
+                "JOIN FETCH a.client c " +
+                "JOIN FETCH c.personalInfo " +
+                "WHERE a.user.id = :userId";
+
+        List<Appointment> appointments = entityManager
+                .createQuery(jpql, Appointment.class)
+                .setParameter("userId", userId)
+                .getResultList();
+
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
     /**
-     * Get appointments by status
+     * Get appointments by status - ΜΕ JOIN FETCH ΣΤΟ SERVICE
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByStatus(AppointmentStatus status) {
-        List<Appointment> appointments = appointmentRepository.findByStatusWithDetails(status);
+        String jpql = "SELECT a FROM Appointment a " +
+                "JOIN FETCH a.user " +
+                "JOIN FETCH a.client c " +
+                "JOIN FETCH c.personalInfo " +
+                "WHERE a.status = :status";
+
+        List<Appointment> appointments = entityManager
+                .createQuery(jpql, Appointment.class)
+                .setParameter("status", status)
+                .getResultList();
+
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
     /**
-     * Get upcoming appointments
+     * Get upcoming appointments - BUSINESS LOGIC ΜΕ JOIN FETCH ΣΤΟ SERVICE
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getUpcomingAppointments() {
-        List<Appointment> appointments = appointmentRepository.findUpcomingAppointmentsWithDetails(LocalDateTime.now());
+        String jpql = "SELECT a FROM Appointment a " +
+                "JOIN FETCH a.user " +
+                "JOIN FETCH a.client c " +
+                "JOIN FETCH c.personalInfo " +
+                "WHERE a.appointmentDateTime >= :date AND a.status = :status " +
+                "ORDER BY a.appointmentDateTime ASC";
+
+        List<Appointment> appointments = entityManager
+                .createQuery(jpql, Appointment.class)
+                .setParameter("date", LocalDateTime.now())
+                .setParameter("status", AppointmentStatus.PENDING)
+                .getResultList();
+
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
     /**
-     * Get appointments for a date range
+     * Get appointments for a date range - ΜΕ JOIN FETCH ΣΤΟ SERVICE
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
-        List<Appointment> appointments = appointmentRepository.findByAppointmentDateTimeBetweenWithDetails(startDate, endDate);
+        String jpql = "SELECT a FROM Appointment a " +
+                "JOIN FETCH a.user " +
+                "JOIN FETCH a.client c " +
+                "JOIN FETCH c.personalInfo " +
+                "WHERE a.appointmentDateTime BETWEEN :startDate AND :endDate " +
+                "ORDER BY a.appointmentDateTime ASC";
+
+        List<Appointment> appointments = entityManager
+                .createQuery(jpql, Appointment.class)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getResultList();
+
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
     /**
-     * Get pending email reminders
+     * Get pending email reminders - BUSINESS LOGIC ΜΕ JOIN FETCH ΣΤΟ SERVICE
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getPendingEmailReminders() {
-        List<Appointment> appointments = appointmentRepository.findPendingRemindersWithDetails(LocalDateTime.now());
+        String jpql = "SELECT a FROM Appointment a " +
+                "JOIN FETCH a.user " +
+                "JOIN FETCH a.client c " +
+                "JOIN FETCH c.personalInfo " +
+                "WHERE a.emailReminder = :emailReminder " +
+                "AND a.reminderSent = :reminderSent " +
+                "AND a.reminderDateTime <= :dateTime " +
+                "ORDER BY a.reminderDateTime ASC";
+
+        List<Appointment> appointments = entityManager
+                .createQuery(jpql, Appointment.class)
+                .setParameter("emailReminder", true)
+                .setParameter("reminderSent", false)
+                .setParameter("dateTime", LocalDateTime.now())
+                .getResultList();
+
+        return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+    }
+
+    /**
+     * Get client appointments between dates - BUSINESS LOGIC ΜΕ JOIN FETCH ΣΤΟ SERVICE
+     */
+    @Transactional(readOnly = true)
+    public List<AppointmentReadOnlyDTO> getClientAppointmentsBetweenDates(Long clientId, LocalDateTime startDate, LocalDateTime endDate) {
+        String jpql = "SELECT a FROM Appointment a " +
+                "JOIN FETCH a.user " +
+                "JOIN FETCH a.client c " +
+                "JOIN FETCH c.personalInfo " +
+                "WHERE a.client.id = :clientId " +
+                "AND a.appointmentDateTime BETWEEN :startDate AND :endDate " +
+                "ORDER BY a.appointmentDateTime ASC";
+
+        List<Appointment> appointments = entityManager
+                .createQuery(jpql, Appointment.class)
+                .setParameter("clientId", clientId)
+                .setParameter("startDate", startDate)
+                .setParameter("endDate", endDate)
+                .getResultList();
+
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
