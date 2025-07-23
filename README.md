@@ -160,41 +160,40 @@ Once the application is running, access the **interactive API documentation**:
 
 ### 1. Register a New Client
 ```bash
-POST /api/clients/save
+POST http://localhost:8080/api/clients/save
 Content-Type: application/json
 
 {
   "isActive": true,
   "user": {
     "isActive": true,
-    "username": "johndoe",
+    "username": "JohnDoe",
     "password": "Password123!",
-    "email": "john@example.com",
-    "firstName": "John",
-    "lastName": "Doe",
-    "phone": "1234567890",
-    "dateOfBirth": "1990-01-01",
-    "gender": "MALE",
+    "email": "john@gmail.com",
     "role": "CLIENT"
   },
   "personalInfo": {
     "firstName": "John",
-    "lastName": "Doe",
-    "email": "john@example.com",
-    "phone": "1234567890",
-    "address": "123 Main St"
+    "lastName": "Johnas",
+    "email": "john.personal@example.com",
+    "phone": "5132875731",
+    "dateOfBirth": "2025-07-23",
+    "gender": "MALE",
+    "address": "string",
+    "cityId": 1
   },
-  "vat": "1234567890"
+  "vat": "5356608968",
+  "notes": "string"
 }
 ```
 
 ### 2. Authenticate
 ```bash
-POST /api/auth/authenticate
+POST http://localhost:8080/api/auth/authenticate
 Content-Type: application/json
 
 {
-  "username": "johndoe",
+  "username": "JohnDoe",
   "password": "Password123!"
 }
 ```
@@ -203,6 +202,9 @@ Content-Type: application/json
 ```bash
 Authorization: Bearer <your_jwt_token>
 ```
+---
+### 4. Enjoy surfing
+---
 
 ## 📝 Key API Endpoints
 
