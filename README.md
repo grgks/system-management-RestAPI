@@ -13,7 +13,7 @@ A comprehensive **Spring Boot REST API** for managing client appointments and us
 ### 🔐 **Security & Authentication**
 - **JWT Token-based Authentication**
 - **Role-based Authorization** (CLIENT, PATIENT, SUPER_ADMIN)
-- **BCrypt Password Hashing** (strength 11)
+- **BCrypt Password Hashing**
 - **CORS Configuration** for cross-origin requests
 - **Custom Security Handlers** for unauthorized access
 
@@ -27,7 +27,7 @@ A comprehensive **Spring Boot REST API** for managing client appointments and us
 ### 📅 **Appointment System**
 - **Appointment Scheduling & Management**
 - **Status Tracking** (PENDING, COMPLETED, CANCELLED)
-- **Email Reminder System**
+- **Email Reminder System** (Pending)
 - **Date Range Filtering**
 - **User & Client Association**
 
