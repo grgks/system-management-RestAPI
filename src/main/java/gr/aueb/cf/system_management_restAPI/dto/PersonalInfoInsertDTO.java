@@ -1,6 +1,7 @@
 package gr.aueb.cf.system_management_restAPI.dto;
 
 import gr.aueb.cf.system_management_restAPI.core.enums.GenderType;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -23,6 +24,9 @@ public class PersonalInfoInsertDTO {
     @NotBlank(message = "Last name is required")
     private String lastName;
 
+    @Schema(description = "Personal email address(optionally )",
+            example = "john.personal@example.com",
+            nullable = true)
     @Email(message = "Invalid email format")
     private String email;
 
