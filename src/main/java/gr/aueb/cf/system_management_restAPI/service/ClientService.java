@@ -49,6 +49,30 @@ public class ClientService {
     @PersistenceContext
     private EntityManager entityManager;
 
+
+//    /**
+//     * Check if current user is SUPER_ADMIN
+//     */
+//    private boolean isCurrentUserSuperAdmin() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        if (authentication == null || !authentication.isAuthenticated() ||
+//                authentication instanceof AnonymousAuthenticationToken) {
+//            return false;
+//        }
+//
+//        return authentication.getAuthorities().stream()
+//                .anyMatch(authority -> authority.getAuthority().equals("SUPER_ADMIN"));
+//    }
+//
+//    /**
+//     * Get current username
+//     */
+//    private String getCurrentUsername() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        return authentication != null ? authentication.getName() : null;
+//    }
+
     /**
      * Create new Client
      *
@@ -221,8 +245,21 @@ public class ClientService {
     public Page<ClientReadOnlyDTO> getPaginatedClients(int page, int size) {
         String defaultSort = "id";
         Pageable pageable = PageRequest.of(page, size, Sort.by(defaultSort).ascending());
+
+       // if (isCurrentUserSuperAdmin()) {
         return clientRepository.findAll(pageable).map(mapper::mapToClientReadOnlyDTO);
     }
+//        //if client own data
+//        String currentUsername = getCurrentUsername();
+//        if (currentUsername != null) {
+//            return clientRepository.findByUserUsername(currentUsername, pageable)
+//                    .map(mapper::mapToClientReadOnlyDTO);
+//        }
+//
+//        // If no authentication, return empty page
+//        return Page.empty(pageable);
+//    }
+
 
     /**
      * Paginated list - custom sorting
@@ -239,20 +276,53 @@ public class ClientService {
      */
     @Transactional(readOnly = true)
     public Paginated<ClientReadOnlyDTO> getClientsFilteredPaginated(ClientFilters filters) {
+
+        //if (isCurrentUserSuperAdmin()) {
         var filtered = clientRepository.findAll(getSpecsFromFilters(filters), filters.getPageable());
         return new Paginated<>(filtered.map(mapper::mapToClientReadOnlyDTO));
     }
+
+//    String currentUsername = getCurrentUsername();
+//    if (currentUsername != null) {
+//        // Create a copy of filters with username restriction
+//        ClientFilters restrictedFilters = filters.toBuilder()
+//                .userUsername(currentUsername)
+//                .build();
+//
+//        var filtered = clientRepository.findAll(getSpecsFromFilters(restrictedFilters), restrictedFilters.getPageable());
+//        return new Paginated<>(filtered.map(mapper::mapToClientReadOnlyDTO));
+//    }
+//
+//    // If no authentication, return empty paginated result
+//    return new Paginated<>(Page.empty());
+//}
 
     /**
      * Filtered search no pagination
      */
     @Transactional(readOnly = true)
     public List<ClientReadOnlyDTO> getClientsFiltered(ClientFilters filters) {
+       // if (isCurrentUserSuperAdmin()) {
         return clientRepository.findAll(getSpecsFromFilters(filters))
                 .stream().map(mapper::mapToClientReadOnlyDTO).toList();
     }
+//    String currentUsername = getCurrentUsername();
+//    if (currentUsername != null) {
+//        // Create a copy of filters with username restriction
+//        ClientFilters restrictedFilters = filters.toBuilder()
+//                .userUsername(currentUsername)
+//                .build();
+//
+//        return clientRepository.findAll(getSpecsFromFilters(restrictedFilters))
+//                .stream().map(mapper::mapToClientReadOnlyDTO).toList();
+//    }
+//
+//    // If no authentication, return empty list
+//    return List.of();
+//}
 
-    /**
+
+/**
      * Helper method για specifications
      */
     private Specification<Client> getSpecsFromFilters(ClientFilters filters) {
@@ -272,6 +342,7 @@ public class ClientService {
      */
     @Transactional(readOnly = true)
     public List<ClientReadOnlyDTO> searchClientsByName(String name) {
+        //if (isCurrentUserSuperAdmin()) {
         String jpql = "SELECT c FROM Client c " +
                 "JOIN FETCH c.user " +
                 "JOIN FETCH c.personalInfo " +
@@ -284,12 +355,34 @@ public class ClientService {
 
         return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
     }
+//        String currentUsername = getCurrentUsername();
+//        if (currentUsername != null) {
+//            String jpql = "SELECT c FROM Client c " +
+//                    "JOIN FETCH c.user " +
+//                    "JOIN FETCH c.personalInfo " +
+//                    "WHERE c.user.username = :username " +
+//                    "AND (c.personalInfo.firstName LIKE :name OR c.personalInfo.lastName LIKE :name)";
+//
+//            List<Client> clients = entityManager
+//                    .createQuery(jpql, Client.class)
+//                    .setParameter("username", currentUsername)
+//                    .setParameter("name", "%" + name + "%")
+//                    .getResultList();
+//
+//            return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
+//        }
+//
+//        // If no authentication, return empty list
+//        return List.of();
+//    }
 
     /**
      * Get clients by last name
      */
     @Transactional(readOnly = true)
     public List<ClientReadOnlyDTO> getClientsByLastName(String lastName) {
+
+       // if (isCurrentUserSuperAdmin()) {
         String jpql = "SELECT c FROM Client c " +
                 "JOIN FETCH c.user " +
                 "JOIN FETCH c.personalInfo " +
@@ -302,4 +395,25 @@ public class ClientService {
 
         return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
     }
+
+//    String currentUsername = getCurrentUsername();
+//    if (currentUsername != null) {
+//        String jpql = "SELECT c FROM Client c " +
+//                "JOIN FETCH c.user " +
+//                "JOIN FETCH c.personalInfo " +
+//                "WHERE c.user.username = :username " +
+//                "AND LOWER(c.personalInfo.lastName) LIKE LOWER(:lastName)";
+//
+//        List<Client> clients = entityManager
+//                .createQuery(jpql, Client.class)
+//                .setParameter("username", currentUsername)
+//                .setParameter("lastName", "%" + lastName + "%")
+//                .getResultList();
+//
+//        return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
+//    }
+//
+//    // If no authentication, return empty list
+//    return List.of();
+
 }
