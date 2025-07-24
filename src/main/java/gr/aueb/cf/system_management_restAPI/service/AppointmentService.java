@@ -24,6 +24,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectInvalidArgumentException;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -48,7 +49,7 @@ public class AppointmentService {
      */
     @Transactional(rollbackFor = { Exception.class })
     public AppointmentReadOnlyDTO saveAppointment(AppointmentInsertDTO appointmentInsertDTO)
-            throws AppObjectNotFoundException, AppObjectAlreadyExists {
+            throws AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectInvalidArgumentException {
 
         // Find user
         User existingUser = userRepository.findById(appointmentInsertDTO.getUserId())
@@ -69,6 +70,14 @@ public class AppointmentService {
         if (!existingAppointments.isEmpty()) {
             throw new AppObjectAlreadyExists("Appointment",
                     "Client already has an appointment at " + appointmentInsertDTO.getAppointmentDateTime());
+        }
+
+        // Add validation
+        if (appointmentInsertDTO.getReminderDateTime() != null &&
+                appointmentInsertDTO.getReminderDateTime()
+                        .isAfter(appointmentInsertDTO.getAppointmentDateTime())) {
+            throw new AppObjectInvalidArgumentException("Appointment",
+                    "Reminder time must be before appointment time");
         }
 
         // Map DTO to Entity
