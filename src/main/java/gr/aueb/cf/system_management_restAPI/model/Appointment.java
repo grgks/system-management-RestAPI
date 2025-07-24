@@ -50,6 +50,6 @@ public class Appointment extends AbstractEntity {
     @Column(name = "reminder_sent")
     private Boolean reminderSent = false;
 
-    @Column(name = "notes")
+    @Column(name = "notes" , length = 3000)
     private String notes;
 }
