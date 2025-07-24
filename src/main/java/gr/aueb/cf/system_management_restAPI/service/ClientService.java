@@ -113,6 +113,7 @@ public class ClientService {
 
         // Check if personal info with same email exists
         if (clientInsertDTO.getPersonalInfo().getEmail() != null &&
+                !clientInsertDTO.getPersonalInfo().getEmail().trim().isEmpty() &&
                 personalInfoRepository.findByEmail(clientInsertDTO.getPersonalInfo().getEmail()).isPresent()) {
             throw new AppObjectAlreadyExists("PersonalInfo",
                     "Personal info with email: " + clientInsertDTO.getPersonalInfo().getEmail() + " already exists");
