@@ -2,6 +2,7 @@ package gr.aueb.cf.system_management_restAPI.rest;
 
 
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
+import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectInvalidArgumentException;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotFoundException;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.ValidationException;
 import gr.aueb.cf.system_management_restAPI.core.enums.AppointmentStatus;
@@ -114,7 +115,7 @@ public class AppointmentRestController {
     @PostMapping("/appointments/save")
     public ResponseEntity<AppointmentReadOnlyDTO> saveAppointment(
             @Valid @RequestBody AppointmentInsertDTO appointmentInsertDTO,
-            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException, AppObjectAlreadyExists {
+            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectInvalidArgumentException {
 
         if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult);
