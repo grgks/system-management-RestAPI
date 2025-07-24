@@ -35,6 +35,6 @@ public class Client extends AbstractEntity {
     @Column(name = "vat", unique = true)
     private String vat;
 
-    @Column(name = "notes")
+    @Column(name = "notes" , length = 2000)
     private String notes;
 }
