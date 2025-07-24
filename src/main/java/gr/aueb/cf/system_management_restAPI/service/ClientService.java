@@ -416,5 +416,5 @@ public class ClientService {
 //
 //    // If no authentication, return empty list
 //    return List.of();
-
+//}
 }
