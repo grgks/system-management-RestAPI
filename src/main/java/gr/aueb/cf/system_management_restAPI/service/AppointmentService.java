@@ -25,12 +25,23 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectInvalidArgumentException;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
+/**
+ * AppointmentService - Handles all appointment-related operations with proper authorization
+ *
+ * SECURITY FEATURES:
+ * - Role-based access control (RBAC)
+ * - Cross-user data protection
+ * - SUPER_ADMIN has full access, regular users see only their own appointments
+ */
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +54,29 @@ public class AppointmentService {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    /**
+     * Check if current user is SUPER_ADMIN
+     */
+    private boolean isCurrentUserSuperAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication instanceof AnonymousAuthenticationToken) {
+            return false;
+        }
+
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("SUPER_ADMIN"));
+    }
+
+    /**
+     * Get current username
+     */
+    private String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null ? authentication.getName() : null;
+    }
 
     /**
      * Create new Appointment για validations
@@ -171,7 +205,18 @@ public class AppointmentService {
     public Page<AppointmentReadOnlyDTO> getPaginatedAppointments(int page, int size) {
         String defaultSort = "appointmentDateTime";
         Pageable pageable = PageRequest.of(page, size, Sort.by(defaultSort).descending());
-        return appointmentRepository.findAll(pageable).map(mapper::mapToAppointmentReadOnlyDTO);
+        if (isCurrentUserSuperAdmin()) {
+            return appointmentRepository.findAll(pageable).map(mapper::mapToAppointmentReadOnlyDTO);
+        }
+
+        // Regular users see only their own appointments
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            return appointmentRepository.findByClientUserUsername(currentUsername, pageable)
+                    .map(mapper::mapToAppointmentReadOnlyDTO);
+        }
+
+        return Page.empty(pageable);
     }
 
     /**
@@ -181,8 +226,18 @@ public class AppointmentService {
     public Page<AppointmentReadOnlyDTO> getPaginatedSortedAppointments(int page, int size, String sortBy, String sortDirection) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return appointmentRepository.findAll(pageable).map(mapper::mapToAppointmentReadOnlyDTO);
+        if(isCurrentUserSuperAdmin()) {
+            return appointmentRepository.findAll(pageable).map(mapper::mapToAppointmentReadOnlyDTO);
+        }
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            return appointmentRepository.findByClientUserUsername(currentUsername, pageable)
+                    .map(mapper::mapToAppointmentReadOnlyDTO);
+        }
+
+        return Page.empty(pageable);
     }
+
 
     /**
      * Filtered search - pagination
@@ -225,6 +280,7 @@ public class AppointmentService {
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByClient(Long clientId) {
+        if (isCurrentUserSuperAdmin()) {
         String jpql = "SELECT a FROM Appointment a " +
                 "JOIN FETCH a.user " +
                 "JOIN FETCH a.client c " +
@@ -239,11 +295,32 @@ public class AppointmentService {
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
+    String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+        String jpql = "SELECT a FROM Appointment a " +
+                "JOIN FETCH a.user " +
+                "JOIN FETCH a.client c " +
+                "JOIN FETCH c.personalInfo " +
+                "WHERE a.client.id = :clientId AND c.user.username = :username";
+
+        List<Appointment> appointments = entityManager
+                .createQuery(jpql, Appointment.class)
+                .setParameter("clientId", clientId)
+                .setParameter("username", currentUsername)
+                .getResultList();
+
+        return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+    }
+
+        return List.of();
+}
+
     /**
      * Get appointments by user
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByUser(Long userId) {
+        if (isCurrentUserSuperAdmin()) {
         String jpql = "SELECT a FROM Appointment a " +
                 "JOIN FETCH a.user " +
                 "JOIN FETCH a.client c " +
@@ -258,11 +335,33 @@ public class AppointmentService {
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            String jpql = "SELECT a FROM Appointment a " +
+                    "JOIN FETCH a.user " +
+                    "JOIN FETCH a.client c " +
+                    "JOIN FETCH c.personalInfo " +
+                    "WHERE a.user.id = :userId AND c.user.username = :username";
+
+            List<Appointment> appointments = entityManager
+                    .createQuery(jpql, Appointment.class)
+                    .setParameter("userId", userId)
+                    .setParameter("username", currentUsername)
+                    .getResultList();
+
+            return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+        }
+
+        return List.of();
+    }
+
+
     /**
      * Get appointments by status
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsByStatus(AppointmentStatus status) {
+        if (isCurrentUserSuperAdmin()) {
         String jpql = "SELECT a FROM Appointment a " +
                 "JOIN FETCH a.user " +
                 "JOIN FETCH a.client c " +
@@ -276,31 +375,72 @@ public class AppointmentService {
 
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
-
-
-    /**
-     * Get appointments by client phone
-     */
-    @Transactional(readOnly = true)
-    public List<AppointmentReadOnlyDTO> getAppointmentsByClientPhone(String phone) throws AppObjectNotFoundException {
+    String currentUsername = getCurrentUsername();
+    if (currentUsername != null) {
         String jpql = "SELECT a FROM Appointment a " +
                 "JOIN FETCH a.user " +
                 "JOIN FETCH a.client c " +
                 "JOIN FETCH c.personalInfo " +
-                "WHERE c.personalInfo.phone = :phone";
+                "WHERE a.status = :status AND c.user.username = :username";
 
         List<Appointment> appointments = entityManager
                 .createQuery(jpql, Appointment.class)
-                .setParameter("phone", phone)
+                .setParameter("status", status)
+                .setParameter("username", currentUsername)
                 .getResultList();
-
-        if (appointments.isEmpty()) {
-            throw new AppObjectNotFoundException("Appointments", "No appointments found for phone: " + phone);
-        }
 
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
+    return List.of();
+}
+
+/**
+     * Get appointments by client phone
+     */
+    @Transactional(readOnly = true)
+    public List<AppointmentReadOnlyDTO> getAppointmentsByClientPhone(String phone) throws AppObjectNotFoundException {
+        if (isCurrentUserSuperAdmin()) {
+            String jpql = "SELECT a FROM Appointment a " +
+                    "JOIN FETCH a.user " +
+                    "JOIN FETCH a.client c " +
+                    "JOIN FETCH c.personalInfo " +
+                    "WHERE c.personalInfo.phone = :phone";
+
+            List<Appointment> appointments = entityManager
+                    .createQuery(jpql, Appointment.class)
+                    .setParameter("phone", phone)
+                    .getResultList();
+
+            if (appointments.isEmpty()) {
+                throw new AppObjectNotFoundException("Appointments", "No appointments found for phone: " + phone);
+            }
+
+            return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+        }
+
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            String jpql = "SELECT a FROM Appointment a " +
+                    "JOIN FETCH a.user " +
+                    "JOIN FETCH a.client c " +
+                    "JOIN FETCH c.personalInfo " +
+                    "WHERE c.personalInfo.phone = :phone AND c.user.username = :username";
+
+            List<Appointment> appointments = entityManager
+                    .createQuery(jpql, Appointment.class)
+                    .setParameter("phone", phone)
+                    .setParameter("username", currentUsername)
+                    .getResultList();
+
+            if (appointments.isEmpty()) {
+                throw new AppObjectNotFoundException("Appointments", "No appointments found for phone: " + phone);
+            }
+
+            return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+        }
+            return List.of();
+        }
 
 
     /**
@@ -308,6 +448,7 @@ public class AppointmentService {
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getUpcomingAppointments() {
+        if (isCurrentUserSuperAdmin()) {
         String jpql = "SELECT a FROM Appointment a " +
                 "JOIN FETCH a.user " +
                 "JOIN FETCH a.client c " +
@@ -323,12 +464,35 @@ public class AppointmentService {
 
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            String jpql = "SELECT a FROM Appointment a " +
+                    "JOIN FETCH a.user " +
+                    "JOIN FETCH a.client c " +
+                    "JOIN FETCH c.personalInfo " +
+                    "WHERE a.appointmentDateTime >= :date AND a.status = :status " +
+                    "AND c.user.username = :username " +
+                    "ORDER BY a.appointmentDateTime ASC";
+
+            List<Appointment> appointments = entityManager
+                    .createQuery(jpql, Appointment.class)
+                    .setParameter("date", LocalDateTime.now())
+                    .setParameter("status", AppointmentStatus.PENDING)
+                    .setParameter("username", currentUsername)
+                    .getResultList();
+
+            return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+        }
+
+        return List.of();
+    }
 
     /**
      * Get appointments for a date range
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getAppointmentsBetweenDates(LocalDateTime startDate, LocalDateTime endDate) {
+        if (isCurrentUserSuperAdmin()) {
         String jpql = "SELECT a FROM Appointment a " +
                 "JOIN FETCH a.user " +
                 "JOIN FETCH a.client c " +
@@ -345,11 +509,35 @@ public class AppointmentService {
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
 
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            String jpql = "SELECT a FROM Appointment a " +
+                    "JOIN FETCH a.user " +
+                    "JOIN FETCH a.client c " +
+                    "JOIN FETCH c.personalInfo " +
+                    "WHERE a.appointmentDateTime BETWEEN :startDate AND :endDate " +
+                    "AND c.user.username = :username " +
+                    "ORDER BY a.appointmentDateTime ASC";
+
+            List<Appointment> appointments = entityManager
+                    .createQuery(jpql, Appointment.class)
+                    .setParameter("startDate", startDate)
+                    .setParameter("endDate", endDate)
+                    .setParameter("username", currentUsername)
+                    .getResultList();
+
+            return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+        }
+
+        return List.of();
+    }
+
     /**
      * Get pending email reminders
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getPendingEmailReminders() {
+        if (isCurrentUserSuperAdmin()) {
         String jpql = "SELECT a FROM Appointment a " +
                 "JOIN FETCH a.user " +
                 "JOIN FETCH a.client c " +
@@ -368,12 +556,38 @@ public class AppointmentService {
 
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
     }
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            String jpql = "SELECT a FROM Appointment a " +
+                    "JOIN FETCH a.user " +
+                    "JOIN FETCH a.client c " +
+                    "JOIN FETCH c.personalInfo " +
+                    "WHERE a.emailReminder = :emailReminder " +
+                    "AND a.reminderSent = :reminderSent " +
+                    "AND a.reminderDateTime <= :dateTime " +
+                    "AND c.user.username = :username " +
+                    "ORDER BY a.reminderDateTime ASC";
+
+            List<Appointment> appointments = entityManager
+                    .createQuery(jpql, Appointment.class)
+                    .setParameter("emailReminder", true)
+                    .setParameter("reminderSent", false)
+                    .setParameter("dateTime", LocalDateTime.now())
+                    .setParameter("username", currentUsername)
+                    .getResultList();
+
+            return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+
+        }
+           return List.of();
+        }
 
     /**
      * Get client appointments between dates
      */
     @Transactional(readOnly = true)
     public List<AppointmentReadOnlyDTO> getClientAppointmentsBetweenDates(Long clientId, LocalDateTime startDate, LocalDateTime endDate) {
+        if (isCurrentUserSuperAdmin()) {
         String jpql = "SELECT a FROM Appointment a " +
                 "JOIN FETCH a.user " +
                 "JOIN FETCH a.client c " +
@@ -390,6 +604,31 @@ public class AppointmentService {
                 .getResultList();
 
         return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+    }
+
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            String jpql = "SELECT a FROM Appointment a " +
+                    "JOIN FETCH a.user " +
+                    "JOIN FETCH a.client c " +
+                    "JOIN FETCH c.personalInfo " +
+                    "WHERE a.client.id = :clientId " +
+                    "AND a.appointmentDateTime BETWEEN :startDate AND :endDate " +
+                    "AND c.user.username = :username " +
+                    "ORDER BY a.appointmentDateTime ASC";
+
+            List<Appointment> appointments = entityManager
+                    .createQuery(jpql, Appointment.class)
+                    .setParameter("clientId", clientId)
+                    .setParameter("startDate", startDate)
+                    .setParameter("endDate", endDate)
+                    .setParameter("username", currentUsername)
+                    .getResultList();
+
+            return appointments.stream().map(mapper::mapToAppointmentReadOnlyDTO).toList();
+        }
+
+        return List.of();
     }
 
     /**
