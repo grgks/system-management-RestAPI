@@ -128,7 +128,7 @@ public class ClientRestController {
     public ResponseEntity<ClientReadOnlyDTO> updateClient(
             @PathVariable Long id,
             @Valid @RequestBody ClientUpdateDTO clientUpdateDTO,
-            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException, AppObjectAlreadyExists {
+            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectNotAuthorizedException {
 
         if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult);
@@ -164,7 +164,7 @@ public class ClientRestController {
             }
     )
     @GetMapping("/clients/{id}")
-    public ResponseEntity<ClientReadOnlyDTO> getClientById(@PathVariable Long id) throws AppObjectNotFoundException {
+    public ResponseEntity<ClientReadOnlyDTO> getClientById(@PathVariable Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         try {
             ClientReadOnlyDTO clientReadOnlyDTO = clientService.getClientById(id);
             return new ResponseEntity<>(clientReadOnlyDTO, HttpStatus.OK);
@@ -194,7 +194,7 @@ public class ClientRestController {
             }
     )
     @GetMapping("/clients/uuid/{uuid}")
-    public ResponseEntity<ClientReadOnlyDTO> getClientByUuid(@PathVariable String uuid) throws AppObjectNotFoundException {
+    public ResponseEntity<ClientReadOnlyDTO> getClientByUuid(@PathVariable String uuid) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         try {
             ClientReadOnlyDTO clientReadOnlyDTO = clientService.getClientByUuid(uuid);
             return new ResponseEntity<>(clientReadOnlyDTO, HttpStatus.OK);
@@ -224,7 +224,7 @@ public class ClientRestController {
             }
     )
     @GetMapping("/clients/phone/{phone}")
-    public ResponseEntity<ClientReadOnlyDTO> getClientByPhone(@PathVariable String phone) throws AppObjectNotFoundException {
+    public ResponseEntity<ClientReadOnlyDTO> getClientByPhone(@PathVariable String phone) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         try {
             ClientReadOnlyDTO clientReadOnlyDTO = clientService.getClientByPhone(phone);
             return new ResponseEntity<>(clientReadOnlyDTO, HttpStatus.OK);
@@ -281,7 +281,7 @@ public class ClientRestController {
             }
     )
     @DeleteMapping("/clients/{id}")
-    public ResponseEntity<Map<String, Object>> deleteClient(@PathVariable Long id) throws AppObjectNotFoundException {
+    public ResponseEntity<Map<String, Object>> deleteClient(@PathVariable Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         try {
             clientService.deleteClient(id);
             LOGGER.info("Client deleted with id: {}", id);
