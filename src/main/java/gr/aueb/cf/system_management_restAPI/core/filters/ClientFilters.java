@@ -9,7 +9,7 @@ import org.springframework.lang.Nullable;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Builder
+@Builder(toBuilder = true)
 @Schema(description = "Client filtering criteria")
 public class ClientFilters extends GenericFilters {
 
