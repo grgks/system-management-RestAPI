@@ -50,39 +50,39 @@ public class ClientService {
     private EntityManager entityManager;
 
 
-//    /**
-//     * Check if current user is SUPER_ADMIN
-//     */
-//    private boolean isCurrentUserSuperAdmin() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        if (authentication == null || !authentication.isAuthenticated() ||
-//                authentication instanceof AnonymousAuthenticationToken) {
-//            return false;
-//        }
-//
-//        return authentication.getAuthorities().stream()
-//                .anyMatch(authority -> authority.getAuthority().equals("SUPER_ADMIN"));
-//    }
-//
-//    /**
-//     * Get current username
-//     */
-//    private String getCurrentUsername() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        return authentication != null ? authentication.getName() : null;
-//    }
+    /**
+     * Check if current user is SUPER_ADMIN
+     */
+    private boolean isCurrentUserSuperAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication instanceof AnonymousAuthenticationToken) {
+            return false;
+        }
+
+        return authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("SUPER_ADMIN"));
+    }
+
+    /**
+     * Get current username
+     */
+    private String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return authentication != null ? authentication.getName() : null;
+    }
 
     /**
      * Create new Client
      *
      * @param clientInsertDTO - Client data insert
      * @return ClientReadOnlyDTO - Created client
-     * @throws AppObjectAlreadyExists - if already exist client
+     * @throws AppObjectAlreadyExists            - if already exist client
      * @throws AppObjectInvalidArgumentException - if not data
-     * @throws AppObjectNotFoundException - if not user exists
+     * @throws AppObjectNotFoundException        - if not user exists
      */
-    @Transactional(rollbackFor = { Exception.class })
+    @Transactional(rollbackFor = {Exception.class})
     public ClientReadOnlyDTO saveClient(ClientInsertDTO clientInsertDTO)
             throws AppObjectAlreadyExists, AppObjectInvalidArgumentException, AppObjectNotFoundException, AppObjectNotAuthorizedException {
 
@@ -120,23 +120,24 @@ public class ClientService {
         }
 
         // Only SUPER_ADMIN can create SUPER_ADMIN users
-        if (clientInsertDTO.getUser().getRole() == Role.SUPER_ADMIN) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-            if (authentication == null || !authentication.isAuthenticated() ||
-                    authentication instanceof AnonymousAuthenticationToken) {
-                throw new AppObjectNotAuthorizedException("User",
-                        "Authentication required to create SUPER_ADMIN users");
-            }
-
-            boolean isSuperAdmin = authentication.getAuthorities().stream()
-                    .anyMatch(authority -> authority.getAuthority().equals("SUPER_ADMIN"));
-
-            if (!isSuperAdmin) {
-                throw new AppObjectNotAuthorizedException("User",
-                        "Only SUPER_ADMIN can create SUPER_ADMIN users");
-            }
-        }
+        // for testing keep this commented..for production uncomment
+//        if (clientInsertDTO.getUser().getRole() == Role.SUPER_ADMIN) {
+//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//            if (authentication == null || !authentication.isAuthenticated() ||
+//                    authentication instanceof AnonymousAuthenticationToken) {
+//                throw new AppObjectNotAuthorizedException("User",
+//                        "Authentication required to create SUPER_ADMIN users");
+//            }
+//
+//            boolean isSuperAdmin = authentication.getAuthorities().stream()
+//                    .anyMatch(authority -> authority.getAuthority().equals("SUPER_ADMIN"));
+//
+//            if (!isSuperAdmin) {
+//                throw new AppObjectNotAuthorizedException("User",
+//                        "Only SUPER_ADMIN can create SUPER_ADMIN users");
+//            }
+//        }
 
         // Create NEW User first
         User newUser = mapper.mapToUserEntity(clientInsertDTO.getUser());
@@ -161,13 +162,21 @@ public class ClientService {
     /**
      * update Client
      */
-    @Transactional(rollbackFor= { Exception.class })
+    @Transactional(rollbackFor = {Exception.class})
     public ClientReadOnlyDTO updateClient(Long id, ClientUpdateDTO clientUpdateDTO)
-            throws AppObjectNotFoundException, AppObjectAlreadyExists {
+            throws AppObjectNotFoundException, AppObjectAlreadyExists , AppObjectNotAuthorizedException{
 
         // Find existing client
         Client existingClient = clientRepository.findById(id)
                 .orElseThrow(() -> new AppObjectNotFoundException("Client", "Client with id: " + id + " not found"));
+
+        if (!isCurrentUserSuperAdmin()) {
+            String currentUsername = getCurrentUsername();
+            if (currentUsername == null || !existingClient.getUser().getUsername().equals(currentUsername)) {
+                throw new AppObjectNotAuthorizedException("Client",
+                        "You don't have permission to update client with id: " + id);
+            }
+        }
 
         //  Check VAT uniqueness
         if (clientUpdateDTO.getVat() != null && !clientUpdateDTO.getVat().equals(existingClient.getVat())) {
@@ -188,9 +197,17 @@ public class ClientService {
      * find Client by ID
      */
     @Transactional(readOnly = true)
-    public ClientReadOnlyDTO getClientById(Long id) throws AppObjectNotFoundException {
+    public ClientReadOnlyDTO getClientById(Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new AppObjectNotFoundException("Client", "Client with id: " + id + " not found"));
+
+        if (!isCurrentUserSuperAdmin()) {
+            String currentUsername = getCurrentUsername();
+            if (currentUsername == null || !client.getUser().getUsername().equals(currentUsername)) {
+                throw new AppObjectNotAuthorizedException("Client",
+                        "You don't have permission to access client with id: " + id);
+            }
+        }
 
         return mapper.mapToClientReadOnlyDTO(client);
     }
@@ -199,9 +216,17 @@ public class ClientService {
      * find Client by UUID
      */
     @Transactional(readOnly = true)
-    public ClientReadOnlyDTO getClientByUuid(String uuid) throws AppObjectNotFoundException {
+    public ClientReadOnlyDTO getClientByUuid(String uuid) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         Client client = clientRepository.findByUuid(uuid)
                 .orElseThrow(() -> new AppObjectNotFoundException("Client", "Client with uuid: " + uuid + " not found"));
+
+        if (!isCurrentUserSuperAdmin()) {
+            String currentUsername = getCurrentUsername();
+            if (currentUsername == null || !client.getUser().getUsername().equals(currentUsername)) {
+                throw new AppObjectNotAuthorizedException("Client",
+                        "You don't have permission to access client with uuid: " + uuid);
+            }
+        }
 
         return mapper.mapToClientReadOnlyDTO(client);
     }
@@ -210,9 +235,17 @@ public class ClientService {
      * find Client by phoneNumber
      */
     @Transactional(readOnly = true)
-    public ClientReadOnlyDTO getClientByPhone(String phone) throws AppObjectNotFoundException {
+    public ClientReadOnlyDTO getClientByPhone(String phone) throws AppObjectNotFoundException, AppObjectNotAuthorizedException{
         Client client = clientRepository.findByPersonalInfoPhone(phone)
                 .orElseThrow(() -> new AppObjectNotFoundException("Client", "Client with phone: " + phone + " not found"));
+
+        if (!isCurrentUserSuperAdmin()) {
+            String currentUsername = getCurrentUsername();
+            if (currentUsername == null || !client.getUser().getUsername().equals(currentUsername)) {
+                throw new AppObjectNotAuthorizedException("Client",
+                        "You don't have permission to access client with phone: " + phone);
+            }
+        }
 
         return mapper.mapToClientReadOnlyDTO(client);
     }
@@ -222,6 +255,14 @@ public class ClientService {
      */
     @Transactional(readOnly = true)
     public ClientReadOnlyDTO getClientByUsername(String username) throws AppObjectNotFoundException {
+
+        if (!isCurrentUserSuperAdmin()) {
+            String currentUsername = getCurrentUsername();
+            if (currentUsername == null || !currentUsername.equals(username)) {
+                throw new AppObjectNotFoundException("Client", "Client with username: " + username + " not found");
+            }
+        }
+
         Client client = clientRepository.findByUserUsername(username)
                 .orElseThrow(() -> new AppObjectNotFoundException("Client", "Client with username: " + username + " not found"));
 
@@ -231,10 +272,18 @@ public class ClientService {
     /**
      * delete Client
      */
-    @Transactional( rollbackFor =  {Exception.class}  )
-    public void deleteClient(Long id) throws AppObjectNotFoundException {
+    @Transactional(rollbackFor = {Exception.class})
+    public void deleteClient(Long id) throws AppObjectNotFoundException , AppObjectNotAuthorizedException{
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new AppObjectNotFoundException("Client", "Client with id: " + id + " not found"));
+
+        if (!isCurrentUserSuperAdmin()) {
+            String currentUsername = getCurrentUsername();
+            if (currentUsername == null || !client.getUser().getUsername().equals(currentUsername)) {
+                throw new AppObjectNotAuthorizedException("Client",
+                        "You don't have permission to delete client with id: " + id);
+            }
+        }
 
         clientRepository.delete(client);
     }
@@ -247,19 +296,19 @@ public class ClientService {
         String defaultSort = "id";
         Pageable pageable = PageRequest.of(page, size, Sort.by(defaultSort).ascending());
 
-       // if (isCurrentUserSuperAdmin()) {
-        return clientRepository.findAll(pageable).map(mapper::mapToClientReadOnlyDTO);
+        if (isCurrentUserSuperAdmin()) {
+            return clientRepository.findAll(pageable).map(mapper::mapToClientReadOnlyDTO);
+        }
+        //if client own data
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            Specification<Client> spec = ClientSpecification.clientUserUsernameIs(currentUsername);
+            return clientRepository.findAll(spec, pageable).map(mapper::mapToClientReadOnlyDTO);
+        }
+
+        // If no authentication, return empty page
+        return Page.empty(pageable);
     }
-//        //if client own data
-//        String currentUsername = getCurrentUsername();
-//        if (currentUsername != null) {
-//            return clientRepository.findByUserUsername(currentUsername, pageable)
-//                    .map(mapper::mapToClientReadOnlyDTO);
-//        }
-//
-//        // If no authentication, return empty page
-//        return Page.empty(pageable);
-//    }
 
 
     /**
@@ -278,52 +327,52 @@ public class ClientService {
     @Transactional(readOnly = true)
     public Paginated<ClientReadOnlyDTO> getClientsFilteredPaginated(ClientFilters filters) {
 
-        //if (isCurrentUserSuperAdmin()) {
-        var filtered = clientRepository.findAll(getSpecsFromFilters(filters), filters.getPageable());
-        return new Paginated<>(filtered.map(mapper::mapToClientReadOnlyDTO));
-    }
+        if (isCurrentUserSuperAdmin()) {
+            var filtered = clientRepository.findAll(getSpecsFromFilters(filters), filters.getPageable());
+            return new Paginated<>(filtered.map(mapper::mapToClientReadOnlyDTO));
+        }
 
-//    String currentUsername = getCurrentUsername();
-//    if (currentUsername != null) {
-//        // Create a copy of filters with username restriction
-//        ClientFilters restrictedFilters = filters.toBuilder()
-//                .userUsername(currentUsername)
-//                .build();
-//
-//        var filtered = clientRepository.findAll(getSpecsFromFilters(restrictedFilters), restrictedFilters.getPageable());
-//        return new Paginated<>(filtered.map(mapper::mapToClientReadOnlyDTO));
-//    }
-//
-//    // If no authentication, return empty paginated result
-//    return new Paginated<>(Page.empty());
-//}
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            // Create a copy of filters with username restriction
+            ClientFilters restrictedFilters = filters.toBuilder()
+                    .userUsername(currentUsername)
+                    .build();
+
+            var filtered = clientRepository.findAll(getSpecsFromFilters(restrictedFilters), restrictedFilters.getPageable());
+            return new Paginated<>(filtered.map(mapper::mapToClientReadOnlyDTO));
+        }
+
+        // If no authentication, return empty paginated result
+        return new Paginated<>(Page.empty());
+    }
 
     /**
      * Filtered search no pagination
      */
     @Transactional(readOnly = true)
     public List<ClientReadOnlyDTO> getClientsFiltered(ClientFilters filters) {
-       // if (isCurrentUserSuperAdmin()) {
-        return clientRepository.findAll(getSpecsFromFilters(filters))
-                .stream().map(mapper::mapToClientReadOnlyDTO).toList();
+        if (isCurrentUserSuperAdmin()) {
+            return clientRepository.findAll(getSpecsFromFilters(filters))
+                    .stream().map(mapper::mapToClientReadOnlyDTO).toList();
+        }
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            // Create a copy of filters with username restriction
+            ClientFilters restrictedFilters = filters.toBuilder()
+                    .userUsername(currentUsername)
+                    .build();
+
+            return clientRepository.findAll(getSpecsFromFilters(restrictedFilters))
+                    .stream().map(mapper::mapToClientReadOnlyDTO).toList();
+        }
+
+        // If no authentication, return empty list
+        return List.of();
     }
-//    String currentUsername = getCurrentUsername();
-//    if (currentUsername != null) {
-//        // Create a copy of filters with username restriction
-//        ClientFilters restrictedFilters = filters.toBuilder()
-//                .userUsername(currentUsername)
-//                .build();
-//
-//        return clientRepository.findAll(getSpecsFromFilters(restrictedFilters))
-//                .stream().map(mapper::mapToClientReadOnlyDTO).toList();
-//    }
-//
-//    // If no authentication, return empty list
-//    return List.of();
-//}
 
 
-/**
+    /**
      * Helper method για specifications
      */
     private Specification<Client> getSpecsFromFilters(ClientFilters filters) {
@@ -343,39 +392,39 @@ public class ClientService {
      */
     @Transactional(readOnly = true)
     public List<ClientReadOnlyDTO> searchClientsByName(String name) {
-        //if (isCurrentUserSuperAdmin()) {
-        String jpql = "SELECT c FROM Client c " +
-                "JOIN FETCH c.user " +
-                "JOIN FETCH c.personalInfo " +
-                "WHERE c.personalInfo.firstName LIKE :name OR c.personalInfo.lastName LIKE :name";
+        if (isCurrentUserSuperAdmin()) {
+            String jpql = "SELECT c FROM Client c " +
+                    "JOIN FETCH c.user " +
+                    "JOIN FETCH c.personalInfo " +
+                    "WHERE c.personalInfo.firstName LIKE :name OR c.personalInfo.lastName LIKE :name";
 
-        List<Client> clients = entityManager
-                .createQuery(jpql, Client.class)
-                .setParameter("name", "%" + name + "%")
-                .getResultList();
+            List<Client> clients = entityManager
+                    .createQuery(jpql, Client.class)
+                    .setParameter("name", "%" + name + "%")
+                    .getResultList();
 
-        return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
+            return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
+        }
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            String jpql = "SELECT c FROM Client c " +
+                    "JOIN FETCH c.user " +
+                    "JOIN FETCH c.personalInfo " +
+                    "WHERE c.user.username = :username " +
+                    "AND (c.personalInfo.firstName LIKE :name OR c.personalInfo.lastName LIKE :name)";
+
+            List<Client> clients = entityManager
+                    .createQuery(jpql, Client.class)
+                    .setParameter("username", currentUsername)
+                    .setParameter("name", "%" + name + "%")
+                    .getResultList();
+
+            return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
+        }
+
+        // If no authentication, return empty list
+        return List.of();
     }
-//        String currentUsername = getCurrentUsername();
-//        if (currentUsername != null) {
-//            String jpql = "SELECT c FROM Client c " +
-//                    "JOIN FETCH c.user " +
-//                    "JOIN FETCH c.personalInfo " +
-//                    "WHERE c.user.username = :username " +
-//                    "AND (c.personalInfo.firstName LIKE :name OR c.personalInfo.lastName LIKE :name)";
-//
-//            List<Client> clients = entityManager
-//                    .createQuery(jpql, Client.class)
-//                    .setParameter("username", currentUsername)
-//                    .setParameter("name", "%" + name + "%")
-//                    .getResultList();
-//
-//            return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
-//        }
-//
-//        // If no authentication, return empty list
-//        return List.of();
-//    }
 
     /**
      * Get clients by last name
@@ -383,38 +432,38 @@ public class ClientService {
     @Transactional(readOnly = true)
     public List<ClientReadOnlyDTO> getClientsByLastName(String lastName) {
 
-       // if (isCurrentUserSuperAdmin()) {
-        String jpql = "SELECT c FROM Client c " +
-                "JOIN FETCH c.user " +
-                "JOIN FETCH c.personalInfo " +
-                "WHERE LOWER(c.personalInfo.lastName) LIKE LOWER(:lastName)";
+        if (isCurrentUserSuperAdmin()) {
+            String jpql = "SELECT c FROM Client c " +
+                    "JOIN FETCH c.user " +
+                    "JOIN FETCH c.personalInfo " +
+                    "WHERE LOWER(c.personalInfo.lastName) LIKE LOWER(:lastName)";
 
-        List<Client> clients = entityManager
-                .createQuery(jpql, Client.class)
-                .setParameter("lastName", "%" + lastName + "%")
-                .getResultList();
+            List<Client> clients = entityManager
+                    .createQuery(jpql, Client.class)
+                    .setParameter("lastName", "%" + lastName + "%")
+                    .getResultList();
 
-        return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
+            return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
+        }
+
+        String currentUsername = getCurrentUsername();
+        if (currentUsername != null) {
+            String jpql = "SELECT c FROM Client c " +
+                    "JOIN FETCH c.user " +
+                    "JOIN FETCH c.personalInfo " +
+                    "WHERE c.user.username = :username " +
+                    "AND LOWER(c.personalInfo.lastName) LIKE LOWER(:lastName)";
+
+            List<Client> clients = entityManager
+                    .createQuery(jpql, Client.class)
+                    .setParameter("username", currentUsername)
+                    .setParameter("lastName", "%" + lastName + "%")
+                    .getResultList();
+
+            return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
+        }
+
+        // If no authentication, return empty list
+        return List.of();
     }
-
-//    String currentUsername = getCurrentUsername();
-//    if (currentUsername != null) {
-//        String jpql = "SELECT c FROM Client c " +
-//                "JOIN FETCH c.user " +
-//                "JOIN FETCH c.personalInfo " +
-//                "WHERE c.user.username = :username " +
-//                "AND LOWER(c.personalInfo.lastName) LIKE LOWER(:lastName)";
-//
-//        List<Client> clients = entityManager
-//                .createQuery(jpql, Client.class)
-//                .setParameter("username", currentUsername)
-//                .setParameter("lastName", "%" + lastName + "%")
-//                .getResultList();
-//
-//        return clients.stream().map(mapper::mapToClientReadOnlyDTO).toList();
-//    }
-//
-//    // If no authentication, return empty list
-//    return List.of();
-//}
 }
