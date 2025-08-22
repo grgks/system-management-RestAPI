@@ -203,7 +203,11 @@ Content-Type: application/json
 Authorization: Bearer <your_jwt_token>
 ```
 ---
-### 4. Enjoy surfing
+### 4. **Video Tutorial:** [Swagger API Demonstration](https://github.com/grgks/system-management-RestAPI/releases/tag/v1.0.0) (50.8 MB)
+- Down to Assets -> download
+- Complete walkthrough of API endpoints
+---
+### 5. Enjoy surfing
 ---
 
 ## 📝 Key API Endpoints
