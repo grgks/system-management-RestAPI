@@ -62,7 +62,7 @@ public class ClientService {
         }
 
         return authentication.getAuthorities().stream()
-                .anyMatch(authority -> authority.getAuthority().equals("SUPER_ADMIN"));
+                .anyMatch(authority -> authority.getAuthority().equals(Role.SUPER_ADMIN.getAuthority()));
     }
 
     /**

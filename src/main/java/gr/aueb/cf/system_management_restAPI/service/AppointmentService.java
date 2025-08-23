@@ -1,5 +1,6 @@
 package gr.aueb.cf.system_management_restAPI.service;
 
+import gr.aueb.cf.system_management_restAPI.core.enums.Role;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotFoundException;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
 import gr.aueb.cf.system_management_restAPI.core.enums.AppointmentStatus;
@@ -67,7 +68,7 @@ public class AppointmentService {
         }
 
         return authentication.getAuthorities().stream()
-                .anyMatch(authority -> authority.getAuthority().equals("SUPER_ADMIN"));
+                .anyMatch(authority -> authority.getAuthority().equals(Role.SUPER_ADMIN.getAuthority()));
     }
 
     /**
