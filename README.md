@@ -203,7 +203,11 @@ Content-Type: application/json
 Authorization: Bearer <your_jwt_token>
 ```
 ---
-### 4. Enjoy surfing
+### 4. **Video Tutorial:** [Swagger API Demonstration](https://github.com/grgks/system-management-RestAPI/releases/tag/v1.0.0) (50.8 MB)
+- Down to Assets -> download
+- Complete walkthrough of API endpoints
+---
+### 5. Enjoy surfing
 ---
 
 ## 📝 Key API Endpoints
@@ -256,6 +260,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
+- **[CodingFactory AUEB](https://codingfactory.aueb.gr/)** for providing comprehensive training in Java/Spring Boot development and modern web technologies that inspired this REST API project as part of my capstone project
 - Spring Boot community for excellent documentation
 - All contributors who help improve this project
 - Open source libraries that make this project possible
