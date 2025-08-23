@@ -6,6 +6,7 @@ public enum Role {
     SUPER_ADMIN;
 
     public String getAuthority() {
+
         return "ROLE_" + this.name();
     }
 }

@@ -106,17 +106,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
-                    // Δημιούργησε authorities από το JWT role
                     Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
                     if (userRole != null) {
-                        authorities.add(new SimpleGrantedAuthority(userRole));
-                        LOGGER.info("JWT userRole: '{}', Created authority: '{}'", userRole, userRole);
+                        String authority = userRole.startsWith("ROLE_") ? userRole : "ROLE_" + userRole;
+                        authorities.add(new SimpleGrantedAuthority(authority));
                     }
+
 
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
-                            authorities  // <-- Χρήση JWT authorities
+                            authorities
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);

@@ -50,9 +50,9 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.POST, "/api/clients/save").permitAll()
 
                         // Protected endpoints με roles
-                        .requestMatchers("/api/clients/**").hasAnyAuthority(Role.CLIENT.name(), Role.SUPER_ADMIN.name())
-                        .requestMatchers("/api/appointments/**").hasAnyAuthority(Role.CLIENT.name(), Role.PATIENT.name(), Role.SUPER_ADMIN.name())
-                        .requestMatchers("/api/admin/**").hasAnyAuthority(Role.SUPER_ADMIN.name())
+                        .requestMatchers("/api/clients/**").hasAnyAuthority(Role.CLIENT.getAuthority(), Role.SUPER_ADMIN.getAuthority())
+                        .requestMatchers("/api/appointments/**").hasAnyAuthority(Role.CLIENT.getAuthority(), Role.PATIENT.getAuthority(), Role.SUPER_ADMIN.getAuthority())
+                        .requestMatchers("/api/admin/**").hasAnyAuthority(Role.SUPER_ADMIN.getAuthority())
 
 
                         .anyRequest().authenticated()
