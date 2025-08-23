@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Component
 @RequiredArgsConstructor
@@ -52,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         String jwt;
         String username;
-        String userRole;
+        String userRole = null;
 
         //process token if present, but don't require it
         if (path.equals("/api/clients/save")) {
@@ -63,10 +66,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                         if (jwtService.isTokenValid(jwt, userDetails)) {
+                            Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                            if (userRole != null) {
+                                authorities.add(new SimpleGrantedAuthority(userRole));
+                            }
                             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                     userDetails,
                                     null,
-                                    userDetails.getAuthorities()
+                                    authorities
                             );
                             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                             SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -99,10 +106,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
+                    // Δημιούργησε authorities από το JWT role
+                    Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+                    if (userRole != null) {
+                        authorities.add(new SimpleGrantedAuthority(userRole));
+                        LOGGER.info("JWT userRole: '{}', Created authority: '{}'", userRole, userRole);
+                    }
+
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
-                            userDetails.getAuthorities()
+                            authorities  // <-- Χρήση JWT authorities
                     );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
