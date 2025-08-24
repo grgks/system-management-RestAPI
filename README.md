@@ -9,12 +9,25 @@
 A comprehensive **Spring Boot REST API** for managing client appointments and user administration with **JWT authentication**, **role-based authorization**, and **advanced filtering capabilities**.
 
 ## 📸 Screenshots
+**Swagger**
 <table border="0" cellpadding="0" cellspacing="0">
 <tr>
 <td><img src="src/main/resources/static/images/screenshot1.png" alt="WorkApp Logo" width="200"></td>
 <td><img src="src/main/resources/static/images/screenshot2.png" alt="WorkApp Logo" width="200"></td>
 <td><img src="src/main/resources/static/images/screenshot3.png" alt="WorkApp Logo" width="200"></td>
 <td><img src="src/main/resources/static/images/screenshot4.png" alt="WorkApp Logo" width="200"></td>
+</tr>
+</table>
+
+**Postman**
+<table border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td><img src="src/main/resources/static/images/createclient.png" alt="WorkApp Logo" width="200"></td>
+<td><img src="src/main/resources/static/images/JWT.png" alt="WorkApp Logo" width="200"></td>
+<td><img src="src/main/resources/static/images/getclients.png" alt="WorkApp Logo" width="200"></td>
+<td><img src="src/main/resources/static/images/getclientbyID.png" alt="WorkApp Logo" width="200"></td>
+<td><img src="src/main/resources/static/images/getClientByPhone.png" alt="WorkApp Logo" width="200"></td>
+<td><img src="src/main/resources/static/images/createAppointment.png" alt="WorkApp Logo" width="200"></td>
 </tr>
 </table>
 
