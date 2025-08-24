@@ -134,7 +134,7 @@ FLUSH PRIVILEGES;
    Variable Value: your_password
    
    Variable Name: JWT_SECRET
-   Variable Value: your_jwt_secret_key_here_minimum_256_bits
+   Variable Value: your_jwt_secret_key_here
    ```
 4. **Click OK** and restart your IDE
 
@@ -142,14 +142,14 @@ FLUSH PRIVILEGES;
 ```cmd
 setx DB_USERNAME "your_username"
 setx DB_PASSWORD "your_password"
-setx JWT_SECRET "your_jwt_secret_key_here_minimum_256_bits"
+setx JWT_SECRET "your_jwt_secret_key_here"
 ```
 
 #### Option C: Linux/Mac
 ```bash
 export DB_USERNAME=your_username
 export DB_PASSWORD=your_password
-export JWT_SECRET=your_jwt_secret_key_here_minimum_256_bits
+export JWT_SECRET=your_jwt_secret_key_here
 ```
 
 ### 4. Build & Run
@@ -189,12 +189,13 @@ Once the application is running, access the **interactive API documentation**:
 > **💡 Pro Tip**: All endpoint documentation, request examples, response schemas, and validation rules are available in the interactive Swagger interface!
 ---
 
-### Create Admin User to MySQL Workbench after first deploy manually
+### Create Admin User
+After first application run, manually insert admin user in MySQL Workbench:
 ```sql
 INSERT INTO users (username, password, email, role, uuid, created_at, updated_at, is_active) 
 VALUES (
    'superadmin',
-   '$2a$11$N9qo8uLOickgx2ZMRZoMye.Ub8IYn2J4v0/KK5vQGpzjvl5kR.CrC(hash your own)',
+   '$2a$11$nP94HRe5lXjg3iNUr.rE6epdJuIG.mEvttr9443eosuAQid1IMGxi',
    'admin@example.com',
    'SUPER_ADMIN',
    'admin-uuid-12345',
@@ -202,18 +203,28 @@ VALUES (
    NOW(),
    true
 );
+
+> **Note:** To use a different password, generate a BCrypt hash with **rounds/cost factor 11** and replace the hash in the SQL above.
 ```
+## 🔑 Authentication
+```
+Login Credentials:
 
-### POST /api/auth/authenticate
-
+Username: superadmin
+Password: Password123!!
+```
+### Postman -> Body-> raw -> Json
 ```
 {
   "username": "superadmin",
-  "password": "passworD234@(hash your own)"
+  "password": "Password123!!"
 }
 ```
-
-## 🔑 Authentication
+### Use the Token
+```bash
+Authorization: Bearer <your_jwt_token>        ----> Ready to navigate with privilliges
+```
+---
 
 ### 1. Register a New Client
 ```bash
