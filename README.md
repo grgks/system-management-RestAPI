@@ -27,6 +27,8 @@ A comprehensive **Spring Boot REST API** for managing client appointments and us
 <td><img src="src/main/resources/static/images/getclients.png" alt="WorkApp Logo" width="200"></td>
 <td><img src="src/main/resources/static/images/getclientbyID.png" alt="WorkApp Logo" width="200"></td>
 <td><img src="src/main/resources/static/images/getClientByPhone.png" alt="WorkApp Logo" width="200"></td>
+<td><img src="src/main/resources/static/images/updateClient.png" alt="WorkApp Logo" width="200"></td>
+<td><img src="src/main/resources/static/images/deleteClient.png" alt="WorkApp Logo" width="200"></td>
 <td><img src="src/main/resources/static/images/createAppointment.png" alt="WorkApp Logo" width="200"></td>
 </tr>
 </table>
