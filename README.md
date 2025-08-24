@@ -8,6 +8,23 @@
 
 A comprehensive **Spring Boot REST API** for managing client appointments and user administration with **JWT authentication**, **role-based authorization**, and **advanced filtering capabilities**.
 
+## 📸 Screenshots
+<table border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td><img src="src/main/resources/static/images/screenshot1.png" alt="WorkApp Logo" width="200"></td>
+<td><img src="src/main/resources/static/images/screenshot2.png" alt="WorkApp Logo" width="200"></td>
+<td><img src="src/main/resources/static/images/screenshot3.png" alt="WorkApp Logo" width="200"></td>
+<td><img src="src/main/resources/static/images/screenshot4.png" alt="WorkApp Logo" width="200"></td>
+</tr>
+</table>
+
+---
+### **Video Tutorial:** [Swagger API Demonstration](https://github.com/grgks/system-management-RestAPI/releases/tag/v1.0.0) (50.8 MB)
+- Down to Assets -> download
+- Complete walkthrough of API endpoints
+---
+
+
 ## 🚀 Features
 
 ### 🔐 **Security & Authentication**
@@ -202,11 +219,7 @@ Content-Type: application/json
 ```bash
 Authorization: Bearer <your_jwt_token>
 ```
----
-### 4. **Video Tutorial:** [Swagger API Demonstration](https://github.com/grgks/system-management-RestAPI/releases/tag/v1.0.0) (50.8 MB)
-- Down to Assets -> download
-- Complete walkthrough of API endpoints
----
+
 ### 5. Enjoy surfing
 ---
 
