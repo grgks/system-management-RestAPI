@@ -19,8 +19,8 @@ A comprehensive **Spring Boot REST API** for managing client appointments and us
 </table>
 
 ---
-### **Video Tutorial:** [Swagger API Demonstration](https://github.com/grgks/system-management-RestAPI/releases/tag/v1.0.0) (50.8 MB)
-- Down to Assets -> download
+### 🎥**Video Tutorial:** [⬇️ Swagger API Demonstration](https://github.com/grgks/system-management-RestAPI/releases/tag/v1.0.0) (50.8MB .mp4)
+- Available under **Assets** --> **Download**
 - Complete walkthrough of API endpoints
 ---
 
