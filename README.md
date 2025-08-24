@@ -187,6 +187,31 @@ Once the application is running, access the **interactive API documentation**:
 6. **Test any endpoint** with full authentication and validation
 
 > **💡 Pro Tip**: All endpoint documentation, request examples, response schemas, and validation rules are available in the interactive Swagger interface!
+---
+
+### Create Admin User to MySQL Workbench after first deploy manually
+```sql
+INSERT INTO users (username, password, email, role, uuid, created_at, updated_at, is_active) 
+VALUES (
+   'superadmin',
+   '$2a$11$N9qo8uLOickgx2ZMRZoMye.Ub8IYn2J4v0/KK5vQGpzjvl5kR.CrC(hash your own)',
+   'admin@example.com',
+   'SUPER_ADMIN',
+   'admin-uuid-12345',
+   NOW(),
+   NOW(),
+   true
+);
+```
+
+### POST /api/auth/authenticate
+
+```
+{
+  "username": "superadmin",
+  "password": "passworD234@(hash your own)"
+}
+```
 
 ## 🔑 Authentication
 
