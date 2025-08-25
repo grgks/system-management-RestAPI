@@ -8,6 +8,9 @@
 
 A comprehensive **Spring Boot REST API** for managing client appointments and user administration with **JWT authentication**, **role-based authorization**, and **advanced filtering capabilities**.
 
+- 👉 A complete React-based frontend that integrates with this API can be found here:  
+[WorkApp Frontend](https://github.com/grgks/appointment-system-react)
+---
 ## 📸 Screenshots
 **Swagger**
 <table border="0" cellpadding="0" cellspacing="0">
