@@ -106,7 +106,21 @@ A comprehensive **Spring Boot REST API** for managing client appointments and us
 - **MySQL 8.0** or higher
 - **Gradle 7.0** or higher
 - **Git**
+  
+---
+## 🔐 Authentication Flow Diagram
+<table border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td><img src="src/main/resources/static/images/authenticationFlow.png" alt="WorkApp Logo" width="300"></td>
+</tr>
+</table>
 
+**Flow Steps:**
+```
+Login → Client sends credentials → API validates → Returns JWT token
+Access → Client sends Bearer token → API validates → Returns protected data  
+Authorization → Role-based access control (CLIENT/PATIENT/SUPER_ADMIN)
+```
 ## ⚡ Quick Start
 
 ### 1. Clone the Repository
