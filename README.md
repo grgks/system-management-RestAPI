@@ -316,6 +316,16 @@ jwt.secret=${JWT_SECRET}
 jwt.expiration=7200000  # 2 hours
 ```
 
+---
+
+## 📝 Notes
+
+> ℹ️ The current version focuses on the implementation and documentation via Swagger & Postman.  
+> Future improvements may include:
+> - Unit & Integration tests (JUnit / Mockito)  
+> - CI/CD pipelines (GitHub Actions)  
+> - Dockerization for easier deployment  
+ 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
