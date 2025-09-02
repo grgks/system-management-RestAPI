@@ -114,7 +114,7 @@ A comprehensive **Spring Boot REST API** for managing client appointments and us
 <tr>
 <td align="center">
   <h4>System Architecture</h4>
-  <img src="src/main/resources/static/images/SystemOverview.png" alt="System Architecture Overview" width="400">
+  <img src="src/main/resources/static/images/systemOverview.png" alt="System Architecture Overview" width="400">
 </td>
 <td align="center">
   <h4>Database Schema Diagram</h4>
