@@ -108,14 +108,27 @@ A comprehensive **Spring Boot REST API** for managing client appointments and us
 - **Git**
   
 ---
-## 🔐 Authentication Flow Diagram
+## 🏗️ Architecture Diagrams
+*Complete system overview showing layered architecture, database relationships, and security flow*
 <table border="0" cellpadding="0" cellspacing="0">
 <tr>
-<td><img src="src/main/resources/static/images/authenticationFlow.png" alt="WorkApp Logo" width="300"></td>
+<td align="center">
+  <h4>System Architecture</h4>
+  <img src="src/main/resources/static/images/SystemOverview.png" alt="System Architecture Overview" width="400">
+</td>
+<td align="center">
+  <h4>Database Schema Diagram</h4>
+  <img src="src/main/resources/static/images/DatabaseTables.png" alt="Database Schema Diagram" width="400">
+</td>
+<td align="center">
+  <h4>JWT Authentication Flow</h4>
+  <img src="src/main/resources/static/images/authenticationFlow.png" alt="JWT Authentication Flow" width="400">
+</td>
 </tr>
 </table>
 
-**Flow Steps:**
+
+**Authentication Flow Steps:**
 ```
 Login → Client sends credentials → API validates → Returns JWT token
 Access → Client sends Bearer token → API validates → Returns protected data  
