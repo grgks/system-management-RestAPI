@@ -7,6 +7,7 @@
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 A comprehensive **Spring Boot REST API** for managing client appointments and user administration with **JWT authentication**, **role-based authorization**, and **advanced filtering capabilities**.
+Developed as the Capstone Project for  **[Coding Factory, Athens University of Economics and Business (AUEB).](https://codingfactory.aueb.gr/)**
 
 - 👉 A complete React-based frontend that integrates with this API can be found here:  
 [WorkApp Frontend](https://github.com/grgks/appointment-system-react)
