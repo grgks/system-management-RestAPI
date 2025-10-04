@@ -19,6 +19,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserRepository userRepository;
+    private Long userId;
 
     public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO dto)
             throws AppObjectNotAuthorizedException {
@@ -35,6 +36,7 @@ public class AuthenticationService {
                 token,
                 user.getUsername(),
                 user.getRole().name(),
+                user.getId().toString(),
                 jwtService.getExpirationTime());
     }
 }
