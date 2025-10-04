@@ -27,6 +27,7 @@ public class PersonalInfoInsertDTO {
     @Schema(description = "Personal email address(optionally )",
             example = "john.personal@example.com",
             nullable = true)
+
     @Email(message = "Invalid email format")
     private String email;
 
