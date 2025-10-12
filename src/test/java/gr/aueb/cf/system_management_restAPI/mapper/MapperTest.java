@@ -1,7 +1,6 @@
 package gr.aueb.cf.system_management_restAPI.mapper;
 
-import gr.aueb.cf.system_management_restAPI.dto.ClientReadOnlyDTO;
-import gr.aueb.cf.system_management_restAPI.dto.PersonalInfoReadOnlyDTO;
+import gr.aueb.cf.system_management_restAPI.dto.*;
 import gr.aueb.cf.system_management_restAPI.model.Client;
 import gr.aueb.cf.system_management_restAPI.model.PersonalInfo;
 import gr.aueb.cf.system_management_restAPI.model.User;
@@ -94,11 +93,72 @@ class MapperTest {
 
     @Test
     void mapToClientEntity() {
+        // ClientInsertDTO
+        ClientInsertDTO insertDTO = new ClientInsertDTO();
+        insertDTO.setVat("123456789");
+        insertDTO.setNotes("Test notes");
+
+        //  PersonalInfoInsertDTO
+        PersonalInfoInsertDTO piInsertDTO = new PersonalInfoInsertDTO();
+        piInsertDTO.setFirstName("John");
+        piInsertDTO.setLastName("Doe");
+        piInsertDTO.setEmail("john.doe@example.com");
+        piInsertDTO.setPhone("6971234567");
+        piInsertDTO.setAddress("Test Street");
+        piInsertDTO.setDateOfBirth(LocalDate.of(1990, 5, 15));
+        piInsertDTO.setGender(GenderType.MALE);
+        piInsertDTO.setCityId(null); // για απλότητα εδώ δεν χρειάζεται city repository
+
+        insertDTO.setPersonalInfo(piInsertDTO);
+
+        // WHEN
+        Client entity = mapper.mapToClientEntity(insertDTO);
+
+        // THEN - ΕΛΕΓΧΟΙ
+        assertNotNull(entity);
+        assertEquals(insertDTO.getVat(), entity.getVat());
+        assertEquals(insertDTO.getNotes(), entity.getNotes());
+
+        // PersonalInfo mapping
+        assertNotNull(entity.getPersonalInfo());
+        assertEquals(piInsertDTO.getFirstName(), entity.getPersonalInfo().getFirstName());
+        assertEquals(piInsertDTO.getLastName(), entity.getPersonalInfo().getLastName());
+        assertEquals(piInsertDTO.getEmail(), entity.getPersonalInfo().getEmail());
+        assertEquals(piInsertDTO.getPhone(), entity.getPersonalInfo().getPhone());
+        assertEquals(piInsertDTO.getAddress(), entity.getPersonalInfo().getAddress());
+        assertEquals(piInsertDTO.getDateOfBirth(), entity.getPersonalInfo().getDateOfBirth());
+        assertEquals(piInsertDTO.getGender(), entity.getPersonalInfo().getGender());
     }
 
-    @Test
-    void updateClientFromDTO() {
-    }
+
+
+        @Test
+        void updateClientFromDTO() {
+
+            Client existingClient = new Client();
+            existingClient.setId(10L);
+            existingClient.setUuid(UUID.randomUUID().toString());
+            existingClient.setVat("123456789");
+            existingClient.setNotes("Old notes");
+
+
+            ClientUpdateDTO dto = new ClientUpdateDTO();
+            dto.setVat("987654321");
+            dto.setNotes("New updated notes");
+
+
+            mapper.updateClientFromDTO(dto, existingClient);
+
+
+            assertEquals("987654321", existingClient.getVat());
+            assertEquals("New updated notes", existingClient.getNotes());
+
+
+            assertEquals(10L, existingClient.getId());
+            assertNotNull(existingClient.getUuid());
+        }
+
+
 
     @Test
     void mapToPersonalInfoReadOnlyDTO() {
