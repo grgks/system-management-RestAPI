@@ -11,6 +11,7 @@ import gr.aueb.cf.system_management_restAPI.model.static_data.City;
 import gr.aueb.cf.system_management_restAPI.core.enums.GenderType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,7 +54,7 @@ class MapperPureUnitTest {
         dto.setGender(GenderType.MALE);
         dto.setCityId(null);
 
-        // Create mapper manually without Spring
+        //manually without Spring
         Mapper mapper = new Mapper(null, null);
 
         //ACT: call the method under test
@@ -100,6 +101,10 @@ class MapperPureUnitTest {
 
         Mapper mapper = new Mapper(null, null);
 
+        //ACT
+        mapper.updatePersonalInfoFromDTO(dto, existingEntity);
+
+
         // ASSERT
         assertEquals(dto.getFirstName(), existingEntity.getFirstName());
         assertEquals(dto.getLastName(), existingEntity.getLastName());
@@ -127,7 +132,21 @@ class MapperPureUnitTest {
         dto.setRole(Role.CLIENT);
         dto.setIsActive(true);
 
-        Mapper mapper = new Mapper(null, null);
+        // Dummy PasswordEncoder για pure unit test
+        PasswordEncoder dummyEncoder = new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return rawPassword.toString(); //  επιστρέφει το ίδιο password
+            }
+
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                return rawPassword.toString().equals(encodedPassword);
+            }
+        };
+
+        // Mapper χωρίς Spring context, περνάμε dummy encoder
+        Mapper mapper = new Mapper(dummyEncoder, null);
 
         // Act:
         User entity = mapper.mapToUserEntity(dto);
