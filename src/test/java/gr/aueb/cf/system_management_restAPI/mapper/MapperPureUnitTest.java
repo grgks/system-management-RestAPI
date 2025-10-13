@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  *   if they are not used in the specific method.
  * - Faster execution than @SpringBootTest.
  * - Demonstrates that mapping logic works independently of Spring.
+ * - The rest mapping methods are covered in MapperWithSpringContextTest ready for testing.
  */
 
 class MapperPureUnitTest {
