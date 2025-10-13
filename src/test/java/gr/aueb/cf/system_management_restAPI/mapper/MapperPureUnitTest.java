@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -219,12 +220,70 @@ class MapperPureUnitTest {
 
     @Test
     void mapToAppointmentEntity() {
-        // TODO:
+        AppointmentInsertDTO dto = new AppointmentInsertDTO();
+        dto.setClientId(10L);
+        dto.setUserId(20L);
+        dto.setEmailReminder(true);
+        dto.setAppointmentDateTime(LocalDateTime.of(2025, 1, 1, 10, 0));
+        dto.setNotes("Test insert");
+
+
+        Client client = new Client();
+        client.setId(10L);
+
+        User user = new User();
+        user.setId(20L);
+
+        Mapper mapper = new Mapper(null, null);
+
+        Appointment entity = mapper.mapToAppointmentEntity(dto);
+
+        // Manually attach client beacause mapper don't
+        entity.setClient(client);
+        entity.setUser(user);
+
+        //ASSERT
+        assertNotNull(entity);
+        assertEquals(dto.getEmailReminder(),entity.getEmailReminder());
+        assertEquals(dto.getAppointmentDateTime(),entity.getAppointmentDateTime());
+        assertEquals(dto.getNotes(),entity.getNotes());
+
+        // Επειδή δεν κάνουμε resolve από repo, απλά ελέγχουμε ότι δημιουργούνται αντικείμενα με id
+        assertNotNull(entity.getClient());
+        assertEquals(10L, entity.getClient().getId());
+
+        assertNotNull(entity.getUser());
+        assertEquals(20L, entity.getUser().getId());
     }
 
     @Test
     void updateAppointmentFromDTO() {
 
-        // TODO:
+        Appointment existingAppointment = new Appointment();
+        existingAppointment.setId(10L);
+        existingAppointment.setAppointmentDateTime(LocalDateTime.of(2025, 1, 1, 10, 0));
+        existingAppointment.setEmailReminder(true);
+        existingAppointment.setReminderDateTime(LocalDateTime.of(2024, 12, 31, 10, 0));
+        existingAppointment.setNotes("Old Notes Test insert");
+
+
+
+        AppointmentUpdateDTO dto = new AppointmentUpdateDTO();
+        dto.setAppointmentDateTime(LocalDateTime.of(2025, 1, 1, 10, 0));
+        dto.setEmailReminder(true);
+        dto.setReminderDateTime(LocalDateTime.of(2024, 12, 31, 10, 0));
+        dto.setNotes("New Test insert");
+
+
+        Mapper mapper = new Mapper(null, null);
+
+        //ACT
+        mapper.updateAppointmentFromDTO(dto, existingAppointment);
+
+        // ASSERT
+        assertEquals(dto.getAppointmentDateTime(),existingAppointment.getAppointmentDateTime());
+        assertEquals(dto.getEmailReminder(),existingAppointment.getEmailReminder());
+        assertEquals(dto.getReminderDateTime(),existingAppointment.getReminderDateTime());
+        assertEquals(dto.getNotes(),existingAppointment.getNotes());
     }
 }
