@@ -17,8 +17,22 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Integration tests for the Mapper using Spring Boot context.
+ * This class loads the full Spring context so that Spring beans
+ * (e.g., CityRepository, PasswordEncoder) can be used,
+ * allowing verification of the Mapper's mapping methods.
+ * Tests included:
+ * - Client → ClientReadOnlyDTO
+ * - ClientInsertDTO → Client
+ * - ClientUpdateDTO → Client
+ * - PersonalInfo → PersonalInfoReadOnlyDTO
+ * Other methods that do not rely on Spring beans will be moved
+ * to MapperPureUnitTest for pure unit testing.
+ */
+
 @SpringBootTest
-class MapperTest {
+class MapperWithSpringContextTest {
 
     @Autowired
     private Mapper mapper;
@@ -31,7 +45,7 @@ class MapperTest {
         user.setUsername("johndoe");
         user.setPassword("dummyPass123");
         user.setEmail("johndoe@example.com");
-        user.setRole(Role.CLIENT); // Ταιριάζει με τον enum σου
+        user.setRole(Role.CLIENT);
         user.setIsActive(true);
 
         // Δημιουργία PersonalInfo
@@ -74,8 +88,9 @@ class MapperTest {
         assertEquals(client.getCreatedAt(), dto.getCreatedAt());
         assertEquals(client.getUpdatedAt(), dto.getUpdatedAt());
 
-        // Assert PersonalInfo fields
+
         PersonalInfoReadOnlyDTO dtoPi = dto.getPersonalInfo();
+
         assertNotNull(dtoPi);
         assertEquals(pi.getId(), dtoPi.getId());
         assertEquals(pi.getFirstName(), dtoPi.getFirstName());
@@ -130,10 +145,8 @@ class MapperTest {
         assertEquals(piInsertDTO.getGender(), entity.getPersonalInfo().getGender());
     }
 
-
-
-        @Test
-        void updateClientFromDTO() {
+    @Test
+     void updateClientFromDTO() {
 
             Client existingClient = new Client();
             existingClient.setId(10L);
@@ -157,40 +170,82 @@ class MapperTest {
             assertEquals(10L, existingClient.getId());
             assertNotNull(existingClient.getUuid());
         }
-
-
-
     @Test
     void mapToPersonalInfoReadOnlyDTO() {
+        // Δημιουργία User
+        User user = new User();
+        user.setId(10L);
+        user.setUsername("johndoe");
+        user.setPassword("dummyPass123");
+        user.setEmail("johndoe@example.com");
+        user.setRole(Role.CLIENT);
+        user.setIsActive(true);
+
+        // Δημιουργία PersonalInfo
+        PersonalInfo pi = new PersonalInfo();
+        pi.setId(20L);
+        pi.setFirstName("John");
+        pi.setLastName("Doe");
+        pi.setEmail("john.doe@example.com");
+        pi.setPhone("6971234567");
+        pi.setDateOfBirth(LocalDate.of(1990, 5, 15));
+        pi.setGender(GenderType.MALE);
+        pi.setAddress("Dummy Street 12");
+
+        // Dummy City
+        City city = new City();
+        city.setId(1L);
+        city.setName("Athens");
+        pi.setCity(city);
+
+        pi.setCreatedAt(LocalDateTime.now());
+        pi.setUpdatedAt(LocalDateTime.now());
+
+        //when
+        PersonalInfoReadOnlyDTO dto = mapper.mapToPersonalInfoReadOnlyDTO(pi);
+
+        // Then - Assert PersonalInfo fields
+        assertNotNull(dto);
+        assertEquals(pi.getId(), dto.getId());
+        assertEquals(pi.getFirstName(), dto.getFirstName());
+        assertEquals(pi.getLastName(), dto.getLastName());
+        assertEquals(pi.getEmail(), dto.getEmail());
+        assertEquals(pi.getPhone(), dto.getPhone());
+        assertEquals(pi.getDateOfBirth(), dto.getDateOfBirth());
+        assertEquals(pi.getGender(), dto.getGender());
+        assertEquals(pi.getAddress(), dto.getAddress());
+        assertEquals(pi.getCity().getName(), dto.getCityName());
+        assertEquals(pi.getCreatedAt(), dto.getCreatedAt());
+        assertEquals(pi.getUpdatedAt(), dto.getUpdatedAt());
     }
+    // The remaining methods are tested in MapperPureUnitTest to show
+    // pure unit testing without Spring context
 
-    @Test
-    void mapToPersonalInfoEntity() {
-    }
-
-    @Test
-    void updatePersonalInfoFromDTO() {
-    }
-
-    @Test
-    void mapToUserReadOnlyDTO() {
-    }
-
-    @Test
-    void mapToUserEntity() {
-    }
-
-    @Test
-    void mapToAppointmentReadOnlyDTO() {
-    }
-
-    @Test
-    void mapToAppointmentEntity() {
-    }
-
-    @Test
-    void updateAppointmentFromDTO() {
-    }
-
-
+//    @Test
+//    void mapToPersonalInfoEntity() {
+//    }
+//
+//    @Test
+//    void updatePersonalInfoFromDTO() {
+//    }
+//
+//    @Test
+//    void mapToUserReadOnlyDTO() {
+//    }
+//
+//    @Test
+//    void mapToUserEntity() {
+//    }
+//
+//    @Test
+//    void mapToAppointmentReadOnlyDTO() {
+//    }
+//
+//    @Test
+//    void mapToAppointmentEntity() {
+//    }
+//
+//    @Test
+//    void updateAppointmentFromDTO() {
+//    }
 }
