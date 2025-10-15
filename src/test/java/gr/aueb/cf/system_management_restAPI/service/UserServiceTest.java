@@ -17,7 +17,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest  //load all layers (Repositories, Services, Controllers)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) // Ensures that @BeforeAll and @AfterAll run on the same test instance
 class UserServiceTest {
 
