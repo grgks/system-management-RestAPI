@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -121,7 +122,26 @@ class MapperPureUnitTest {
     @Test
     void mapToUserReadOnlyDTO() {
 
-        // TODO:
+            // given
+            User user = new User();
+            user.setId(1L);
+            user.setUsername("testuser");
+            user.setEmail("test@aueb.gr");
+            user.setUuid(UUID.randomUUID().toString());
+            user.setRole(Role.CLIENT);
+            user.setIsActive(true);
+
+            // act
+            UserReadOnlyDTO dto = mapper.mapToUserReadOnlyDTO(user);
+
+            // assert
+            assertNotNull(dto);
+            assertEquals(user.getId(), dto.getId());
+            assertEquals(user.getUsername(), dto.getUsername());
+            assertEquals(user.getEmail(), dto.getEmail());
+            assertEquals(user.getRole(), dto.getRole());
+            assertEquals(user.getIsActive(), dto.getIsActive());
+
 
     }
 
