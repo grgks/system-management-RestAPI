@@ -2,6 +2,9 @@ package gr.aueb.cf.system_management_restAPI.util;
 
 import gr.aueb.cf.system_management_restAPI.core.enums.GenderType;
 import gr.aueb.cf.system_management_restAPI.core.enums.Role;
+import gr.aueb.cf.system_management_restAPI.dto.ClientInsertDTO;
+import gr.aueb.cf.system_management_restAPI.dto.PersonalInfoInsertDTO;
+import gr.aueb.cf.system_management_restAPI.dto.UserInsertDTO;
 import gr.aueb.cf.system_management_restAPI.model.Client;
 import gr.aueb.cf.system_management_restAPI.model.PersonalInfo;
 import gr.aueb.cf.system_management_restAPI.model.User;
@@ -16,6 +19,8 @@ import java.util.UUID;
  * Reduces boilerplate code in tests.
  */
 public class TestDataFactory {
+
+    //Entities
 
     /**
      * Creates a default City (Athens)
@@ -109,4 +114,49 @@ public class TestDataFactory {
     public static String generateUniqueUsername() {
         return "user_" + UUID.randomUUID().toString().substring(0, 8);
     }
+
+    //  DTO FACTORIES
+
+    /**
+     * Creates a valid UserInsertDTO for testing
+     */
+    public static UserInsertDTO createValidUserInsertDTO() {
+        UserInsertDTO dto = new UserInsertDTO();
+        dto.setIsActive(true);
+        dto.setUsername(generateUniqueUsername());
+        dto.setPassword("ValidPassword123!");
+        dto.setEmail(generateUniqueEmail());
+        dto.setRole(Role.CLIENT);
+        return dto;
+    }
+
+    /**
+     * Creates a valid PersonalInfoInsertDTO for testing
+     */
+    public static PersonalInfoInsertDTO createValidPersonalInfoInsertDTO() {
+        PersonalInfoInsertDTO dto = new PersonalInfoInsertDTO();
+        dto.setFirstName("TestFirst");
+        dto.setLastName("TestLast");
+        dto.setEmail(generateUniqueEmail());
+        dto.setPhone(generateUniquePhone());
+        dto.setDateOfBirth(LocalDate.of(1990, 1, 1));
+        dto.setGender(GenderType.MALE);
+        dto.setAddress("Test Address 123");
+        dto.setCityId(1L);
+        return dto;
+    }
+
+    /**
+     * Creates a valid ClientInsertDTO for testing
+     */
+    public static ClientInsertDTO createValidClientInsertDTO() {
+        ClientInsertDTO dto = new ClientInsertDTO();
+        dto.setIsActive(true);
+        dto.setUser(createValidUserInsertDTO());
+        dto.setPersonalInfo(createValidPersonalInfoInsertDTO());
+        dto.setVat("1234567890");
+        dto.setNotes("Test client for testing");
+        return dto;
+    }
 }
+
