@@ -217,11 +217,11 @@ class ClientServiceReadTest {
     @Test
     void getClientByUsername_ShouldThrowException_WhenNotFound() {
         // given
-        String existingUsername = "nonUser123";
+        String nonExistingUsername = "nonUser123";
 
         // act & assert
         assertThrows(AppObjectNotFoundException.class,
-                () -> clientService.getClientByUsername(existingUsername));
+                () -> clientService.getClientByUsername(nonExistingUsername));
     }
 
     /**
