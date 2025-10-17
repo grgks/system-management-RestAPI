@@ -121,7 +121,7 @@ public class ClientServiceCrudTest {
 
         // act & assert
         assertThrows(AppObjectAlreadyExists.class,
-                () -> clientService.saveClient(dto));
+                () -> clientService.saveClient(dto));   //service must decline duplicates not DB
     }
 
     //  (UPDATE)
@@ -181,7 +181,7 @@ public class ClientServiceCrudTest {
         // given
         Client existingClient = clientRepository.findAll().get(0);
         Long clientId = existingClient.getId();
-        Long userId = existingClient.getUser().getId();
+        Long userId = existingClient.getUser().getId(); // check if cascade delete works(service deletes user also)
 
         // act
         clientService.deleteClient(clientId);
@@ -190,7 +190,7 @@ public class ClientServiceCrudTest {
         assertFalse(clientRepository.existsById(clientId));
 
         // (cascade delete)
-        assertFalse(userRepository.existsById(userId));
+        assertFalse(userRepository.existsById(userId)); // check if cascade delete works(service deletes user also)
     }
 
     /**
