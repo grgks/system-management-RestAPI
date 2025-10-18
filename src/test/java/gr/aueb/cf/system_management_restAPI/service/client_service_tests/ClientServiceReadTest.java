@@ -1,20 +1,20 @@
-package gr.aueb.cf.system_management_restAPI.service;
+package gr.aueb.cf.system_management_restAPI.service.client_service_tests;
 
-import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotAuthorizedException;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotFoundException;
-import gr.aueb.cf.system_management_restAPI.dto.ClientInsertDTO;
 import gr.aueb.cf.system_management_restAPI.dto.ClientReadOnlyDTO;
-import gr.aueb.cf.system_management_restAPI.dto.UserReadOnlyDTO;
 import gr.aueb.cf.system_management_restAPI.mapper.Mapper;
 import gr.aueb.cf.system_management_restAPI.model.Client;
 import gr.aueb.cf.system_management_restAPI.model.User;
 import gr.aueb.cf.system_management_restAPI.repository.ClientRepository;
 import gr.aueb.cf.system_management_restAPI.repository.PersonalInfoRepository;
 import gr.aueb.cf.system_management_restAPI.repository.UserRepository;
+import gr.aueb.cf.system_management_restAPI.service.ClientQueryService;
+import gr.aueb.cf.system_management_restAPI.service.ClientService;
+import gr.aueb.cf.system_management_restAPI.service.ClientValidationService;
+import gr.aueb.cf.system_management_restAPI.service.SecurityService;
 import gr.aueb.cf.system_management_restAPI.util.TestDBHelper;
 import gr.aueb.cf.system_management_restAPI.util.TestDataFactory;
-import jakarta.persistence.Id;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

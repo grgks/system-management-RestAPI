@@ -1,11 +1,13 @@
-package gr.aueb.cf.system_management_restAPI.service;
+package gr.aueb.cf.system_management_restAPI.service.client_service_tests;
 
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
-import gr.aueb.cf.system_management_restAPI.dto.ClientUpdateDTO;
+import gr.aueb.cf.system_management_restAPI.dto.ClientInsertDTO;
 import gr.aueb.cf.system_management_restAPI.model.Client;
 import gr.aueb.cf.system_management_restAPI.model.User;
 import gr.aueb.cf.system_management_restAPI.repository.ClientRepository;
+import gr.aueb.cf.system_management_restAPI.repository.PersonalInfoRepository;
 import gr.aueb.cf.system_management_restAPI.repository.UserRepository;
+import gr.aueb.cf.system_management_restAPI.service.ClientValidationService;
 import gr.aueb.cf.system_management_restAPI.util.TestDBHelper;
 import gr.aueb.cf.system_management_restAPI.util.TestDataFactory;
 import org.junit.jupiter.api.*;
@@ -18,18 +20,21 @@ import java.sql.SQLException;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Validation tests for ClientValidationService - validateClientUpdate
- * Tests: Validation for client updates
+ * Validation tests for ClientValidationService - validateNewClient
+ * Tests: Validation for new client creation
  */
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class ClientValidationServiceUpdateTest {
+class ClientValidationServiceNewClientTest {
 
     @Autowired
     private ClientRepository clientRepository;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PersonalInfoRepository personalInfoRepository;
 
     @Autowired
     private DataSource dataSource;
@@ -53,75 +58,94 @@ class ClientValidationServiceUpdateTest {
     }
 
     /**
-     * Should pass validation when VAT is null.
+     * Should pass validation when all data is valid and unique.
      */
     @Test
-    void validateClientUpdate_ShouldPass_WhenVatIsNull() throws AppObjectAlreadyExists {
+    void validateNewClient_ShouldPass_WhenAllDataValid() throws AppObjectAlreadyExists {
         // given
-        Long existingClientId = userRepository.findAll().get(0).getId();
-        ClientUpdateDTO dto = new ClientUpdateDTO();
-        dto.setVat(null);
-
-        // act & assert(no exception = pass)
-         validationService.validateClientUpdate(existingClientId,dto);
-    }
-
-    /**
-     * Should pass validation when VAT is the same as existing.
-     */
-    @Test
-    void validateClientUpdate_ShouldPass_WhenVatIsSameAsExisting() throws AppObjectAlreadyExists {
-        // given
-        Client  existingClient = clientRepository.findAll().get(0);
-        Long clientId = existingClient.getId();
-        String currentVat = existingClient.getVat();
-
-        ClientUpdateDTO dto = new ClientUpdateDTO();
-        dto.setVat(currentVat);
-
-        // act & assert(no exception thrown)
-        validationService.validateClientUpdate(clientId, dto);
-    }
-
-    /**
-     * Should pass validation when new VAT is unique.
-     */
-    @Test
-    void validateClientUpdate_ShouldPass_WhenNewVatIsUnique() throws AppObjectAlreadyExists {
-        // given
-        Client  existingClient = clientRepository.findAll().get(0);
-        Long clientId = existingClient.getId();
-        ClientUpdateDTO dto = new ClientUpdateDTO();
-        dto.setVat("9999999999");
-
-        // act & assert(no exception thrown)
-        validationService.validateClientUpdate(clientId, dto);
-    }
-
-    /**
-     * Should throw exception when new VAT already exists for another client.
-     */
-    @Test
-    void validateClientUpdate_ShouldThrowException_WhenNewVatExists() {
-        // given
-        Client client1 = clientRepository.findAll().get(0);
-        Client client2 = clientRepository.findAll().get(1);
-
-        Long client1Id = client1.getId();
-        String client2Vat = client2.getVat();
-
-        ClientUpdateDTO dto = new ClientUpdateDTO();
-        dto.setVat(client2Vat);
+        ClientInsertDTO clientInsertDTO = TestDataFactory.createValidClientInsertDTO();
 
         // act & assert
-        assertThrows(RuntimeException.class,
-                () -> validationService.validateClientUpdate(client1Id, dto));
+        assertDoesNotThrow(() -> validationService.validateNewClient(clientInsertDTO));
+    }
+
+    /**
+     * Should throw exception when username already exists.
+     */
+    @Test
+    void validateNewClient_ShouldThrowException_WhenUsernameExists() {
+        // given
+        String existingUsername = userRepository.findAll().get(0).getUsername();
+        ClientInsertDTO dto = TestDataFactory.createValidClientInsertDTO();
+        dto.getUser().setUsername(existingUsername);  // Override με existing username
+
+        // act & assert
+        assertThrows(AppObjectAlreadyExists.class,
+                () -> validationService.validateNewClient(dto));
+    }
+
+    /**
+     * Should throw exception when user email already exists.
+     */
+    @Test
+    void validateNewClient_ShouldThrowException_WhenUserEmailExists() {
+        // given
+        String existingEmail = userRepository.findAll().get(0).getEmail();
+        ClientInsertDTO dto = TestDataFactory.createValidClientInsertDTO();
+        dto.getUser().setEmail(existingEmail);
+
+        // act & assert
+        assertThrows(AppObjectAlreadyExists.class,
+                () -> validationService.validateNewClient(dto));
+    }
+
+    /**
+     * Should throw exception when VAT already exists.
+     */
+    @Test
+    void validateNewClient_ShouldThrowException_WhenVatExists() {
+        // given
+        String existingVat = clientRepository.findAll().get(0).getVat();
+        ClientInsertDTO dto = TestDataFactory.createValidClientInsertDTO();
+        dto.setVat(existingVat);
+
+        // act & assert
+        assertThrows(AppObjectAlreadyExists.class,
+                () -> validationService.validateNewClient(dto));
+    }
+
+    /**
+     * Should throw exception when phone already exists.
+     */
+    @Test
+    void validateNewClient_ShouldThrowException_WhenPhoneExists() {
+        // given
+        String existingPhone = personalInfoRepository.findAll().get(0).getPhone();
+        ClientInsertDTO dto = TestDataFactory.createValidClientInsertDTO();
+        dto.getPersonalInfo().setPhone(existingPhone);
+
+        // act & assert
+        assertThrows(AppObjectAlreadyExists.class,
+                () -> validationService.validateNewClient(dto));
+    }
+
+    /**
+     * Should throw exception when personal info email already exists.
+     */
+    @Test
+    void validateNewClient_ShouldThrowException_WhenPersonalInfoEmailExists() {
+        // given
+        String existingEmail = personalInfoRepository.findAll().get(0).getEmail();
+        ClientInsertDTO dto = TestDataFactory.createValidClientInsertDTO();
+        dto.getPersonalInfo().setEmail(existingEmail);
+        // act & assert
+        assertThrows(AppObjectAlreadyExists.class,
+                () -> validationService.validateNewClient(dto));
     }
 
     /**
      * Creates dummy data for validation tests.
      */
-
     private void createDummyClients() {
         if (clientRepository.count() > 0) return;
 
@@ -167,4 +191,3 @@ class ClientValidationServiceUpdateTest {
         clientRepository.save(client3);
     }
 }
-
