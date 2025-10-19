@@ -1,10 +1,10 @@
 package gr.aueb.cf.system_management_restAPI.util;
 
+import gr.aueb.cf.system_management_restAPI.core.enums.AppointmentStatus;
 import gr.aueb.cf.system_management_restAPI.core.enums.GenderType;
 import gr.aueb.cf.system_management_restAPI.core.enums.Role;
-import gr.aueb.cf.system_management_restAPI.dto.ClientInsertDTO;
-import gr.aueb.cf.system_management_restAPI.dto.PersonalInfoInsertDTO;
-import gr.aueb.cf.system_management_restAPI.dto.UserInsertDTO;
+import gr.aueb.cf.system_management_restAPI.dto.*;
+import gr.aueb.cf.system_management_restAPI.model.Appointment;
 import gr.aueb.cf.system_management_restAPI.model.Client;
 import gr.aueb.cf.system_management_restAPI.model.PersonalInfo;
 import gr.aueb.cf.system_management_restAPI.model.User;
@@ -156,6 +156,80 @@ public class TestDataFactory {
         dto.setPersonalInfo(createValidPersonalInfoInsertDTO());
         dto.setVat("1234567890");
         dto.setNotes("Test client for testing");
+        return dto;
+    }
+
+
+//APPOINTMENT DATA
+
+    /**
+     * Creates a default Appointment
+     */
+    public static Appointment createDefaultAppointment() {
+        Appointment appointment = new Appointment();
+        appointment.setUuid(UUID.randomUUID().toString());
+        appointment.setAppointmentDateTime(LocalDateTime.now().plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0));
+        appointment.setStatus(AppointmentStatus.PENDING);
+        appointment.setEmailReminder(true);
+        appointment.setReminderSent(false);
+        appointment.setNotes("Test appointment");
+        appointment.setCreatedAt(LocalDateTime.now());
+        appointment.setUpdatedAt(LocalDateTime.now());
+        return appointment;
+    }
+
+    /**
+     * Creates a default Appointment with specific dateTime
+     */
+    public static Appointment createAppointmentWithDateTime(LocalDateTime dateTime) {
+        Appointment appointment = createDefaultAppointment();
+        appointment.setAppointmentDateTime(dateTime);
+        return appointment;
+    }
+
+    /**
+     * Creates a default Appointment with specific status
+     */
+    public static Appointment createAppointmentWithStatus(AppointmentStatus status) {
+        Appointment appointment = createDefaultAppointment();
+        appointment.setStatus(status);
+        return appointment;
+    }
+
+    /**
+     * Creates a past Appointment
+     */
+    public static Appointment createPastAppointment() {
+        Appointment appointment = createDefaultAppointment();
+        appointment.setAppointmentDateTime(LocalDateTime.now().minusDays(1));
+        return appointment;
+    }
+
+// APPOINTMENT DTO
+
+    /**
+     * Creates AppointmentInsertDTO with specific user and client IDs
+     */
+    public static AppointmentInsertDTO createAppointmentInsertDTO(Long userId, Long clientId) {
+        AppointmentInsertDTO dto = new AppointmentInsertDTO();
+        dto.setUserId(userId);
+        dto.setClientId(clientId);
+        dto.setAppointmentDateTime(LocalDateTime.now().plusDays(1).withHour(10).withMinute(0).withSecond(0).withNano(0));
+        dto.setStatus(AppointmentStatus.PENDING);
+        dto.setEmailReminder(true);
+        dto.setNotes("Test appointment");
+        return dto;
+    }
+
+    /**
+     * Creates a valid AppointmentUpdateDTO
+     */
+    public static AppointmentUpdateDTO createValidAppointmentUpdateDTO() {
+        AppointmentUpdateDTO dto = new AppointmentUpdateDTO();
+        dto.setAppointmentDateTime(LocalDateTime.now().plusDays(2).withHour(14).withMinute(0).withSecond(0).withNano(0));
+        dto.setStatus(AppointmentStatus.CONFIRMED);
+        dto.setEmailReminder(true);
+        dto.setNotes("Updated appointment");
         return dto;
     }
 }
