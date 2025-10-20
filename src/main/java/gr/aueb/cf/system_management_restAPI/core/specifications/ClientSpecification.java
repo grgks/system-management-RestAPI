@@ -26,7 +26,7 @@ public class ClientSpecification {
                 return criteriaBuilder.isTrue(criteriaBuilder.literal(true));
             }
             Join<Client, User> user = root.join("user");
-            return criteriaBuilder.like(criteriaBuilder.upper(user.get("username")), "%" + username.toUpperCase() + "%");
+            return criteriaBuilder.equal(user.get("username"), username);
         });
     }
 

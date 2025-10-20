@@ -2,6 +2,7 @@ package gr.aueb.cf.system_management_restAPI.service;
 
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectInvalidArgumentException;
+import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotAuthorizedException;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotFoundException;
 import gr.aueb.cf.system_management_restAPI.dto.AppointmentInsertDTO;
 import gr.aueb.cf.system_management_restAPI.dto.AppointmentUpdateDTO;
@@ -52,9 +53,20 @@ public class AppointmentValidationService {
     }
 
 
-    public Client validateAndGetClient(Long clientId) throws AppObjectNotFoundException {
-        return clientRepository.findById(clientId)
-                .orElseThrow(() -> new AppObjectNotFoundException("Client", "Client with id: " + clientId + " not found"));
+    public Client validateAndGetClient(Long clientId) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new AppObjectNotFoundException("Client",
+                        "Client with id: " + clientId + " not found"));
+
+        // security check
+        if (!securityService.isCurrentUserSuperAdmin()) {
+            String currentUsername = securityService.getCurrentUsername();
+            if (!client.getUser().getUsername().equals(currentUsername)) {
+                throw new AppObjectNotAuthorizedException("Client",
+                        "You can only create appointments for your own clients");
+            }
+        }
+        return client;
     }
 
     public void validateNewAppointment(AppointmentInsertDTO dto) throws AppObjectAlreadyExists, AppObjectInvalidArgumentException {

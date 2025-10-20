@@ -3,6 +3,7 @@ package gr.aueb.cf.system_management_restAPI.service;
 import gr.aueb.cf.system_management_restAPI.core.enums.AppointmentStatus;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectInvalidArgumentException;
+import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotAuthorizedException;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotFoundException;
 import gr.aueb.cf.system_management_restAPI.core.filters.AppointmentFilters;
 import gr.aueb.cf.system_management_restAPI.core.filters.Paginated;
@@ -31,11 +32,12 @@ public class AppointmentService implements IAppointmentService {
     private final Mapper mapper;
     private final AppointmentValidationService validationService;
     private final AppointmentQueryService queryService;
+    private final SecurityService securityService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public AppointmentReadOnlyDTO saveAppointment(AppointmentInsertDTO dto)
-            throws AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectInvalidArgumentException {
+            throws AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectInvalidArgumentException, AppObjectNotAuthorizedException {
 
         // Validation and entity retrieval
         User existingUser = validationService.validateAndGetUser(dto.getUserId());
@@ -52,9 +54,14 @@ public class AppointmentService implements IAppointmentService {
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public AppointmentReadOnlyDTO updateAppointment(Long id, AppointmentUpdateDTO dto)
-            throws AppObjectNotFoundException, AppObjectAlreadyExists {
+            throws AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectNotAuthorizedException {
 
         Appointment existingAppointment = findAppointmentOrThrow(id);
+        securityService.validateUserAccess(
+                existingAppointment.getUser().getUsername(),
+                "Appointment",
+                id.toString()
+        );
         validationService.validateAppointmentUpdate(id, dto, existingAppointment);
 
         mapper.updateAppointmentFromDTO(dto, existingAppointment);

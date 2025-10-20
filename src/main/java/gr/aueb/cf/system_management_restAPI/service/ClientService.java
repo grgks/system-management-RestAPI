@@ -20,6 +20,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -41,6 +45,17 @@ public class ClientService implements IClientService {
     public ClientReadOnlyDTO saveClient(ClientInsertDTO dto)
             throws AppObjectAlreadyExists, AppObjectInvalidArgumentException, AppObjectNotFoundException, AppObjectNotAuthorizedException {
 
+        // Check if user is authenticated (not anonymous)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
+
+        // If authenticated AND not super admin → Block!
+        if (isAuthenticated && !securityService.isCurrentUserSuperAdmin()) {
+            throw new AppObjectNotAuthorizedException("Client",
+                    "Only SUPER_ADMIN can create clients while authenticated");
+        }
         // Validation
         validationService.validateNewClient(dto);
 

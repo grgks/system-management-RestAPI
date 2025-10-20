@@ -3,6 +3,7 @@ package gr.aueb.cf.system_management_restAPI.service;
 import gr.aueb.cf.system_management_restAPI.core.enums.AppointmentStatus;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectInvalidArgumentException;
+import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotAuthorizedException;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotFoundException;
 import gr.aueb.cf.system_management_restAPI.core.filters.AppointmentFilters;
 import gr.aueb.cf.system_management_restAPI.core.filters.Paginated;
@@ -15,8 +16,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IAppointmentService {
-    AppointmentReadOnlyDTO saveAppointment(AppointmentInsertDTO dto) throws AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectInvalidArgumentException;
-    AppointmentReadOnlyDTO updateAppointment(Long id, AppointmentUpdateDTO dto) throws AppObjectNotFoundException, AppObjectAlreadyExists;
+    AppointmentReadOnlyDTO saveAppointment(AppointmentInsertDTO dto) throws AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectInvalidArgumentException, AppObjectNotAuthorizedException;
+    AppointmentReadOnlyDTO updateAppointment(Long id, AppointmentUpdateDTO dto) throws AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectNotAuthorizedException;
     AppointmentReadOnlyDTO getAppointmentById(Long id) throws AppObjectNotFoundException;
     AppointmentReadOnlyDTO getAppointmentByUuid(String uuid) throws AppObjectNotFoundException;
     void deleteAppointment(Long id) throws AppObjectNotFoundException;
