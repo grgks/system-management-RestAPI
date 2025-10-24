@@ -41,6 +41,6 @@ build/reports/jacoco/
 
 # Test output
 test-output/
-
+/test-output.txt
 
 application-prod.properties
