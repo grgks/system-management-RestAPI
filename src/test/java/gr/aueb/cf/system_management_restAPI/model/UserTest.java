@@ -98,7 +98,7 @@ class UserTest {
         assertNotNull(authorities);
         assertEquals(1, authorities.size());
         assertTrue(authorities.iterator().next() instanceof SimpleGrantedAuthority);
-        assertEquals("SUPER_ADMIN", authorities.iterator().next().toString());
+        assertEquals("ROLE_SUPER_ADMIN", authorities.iterator().next().toString());
     }
 
     /**
