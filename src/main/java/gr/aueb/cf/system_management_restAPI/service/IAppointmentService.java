@@ -18,7 +18,7 @@ import java.util.List;
 public interface IAppointmentService {
     AppointmentReadOnlyDTO saveAppointment(AppointmentInsertDTO dto) throws AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectInvalidArgumentException, AppObjectNotAuthorizedException;
     AppointmentReadOnlyDTO updateAppointment(Long id, AppointmentUpdateDTO dto) throws AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectNotAuthorizedException;
-    AppointmentReadOnlyDTO getAppointmentById(Long id) throws AppObjectNotFoundException;
+    AppointmentReadOnlyDTO getAppointmentById(Long id) throws AppObjectNotFoundException,AppObjectNotAuthorizedException;
     AppointmentReadOnlyDTO getAppointmentByUuid(String uuid) throws AppObjectNotFoundException;
     void deleteAppointment(Long id) throws AppObjectNotFoundException;
     Page<AppointmentReadOnlyDTO> getPaginatedAppointments(int page, int size);

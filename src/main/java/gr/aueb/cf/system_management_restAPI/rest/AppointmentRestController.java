@@ -188,7 +188,7 @@ public class AppointmentRestController {
             }
     )
     @GetMapping("/appointments/{id}")
-    public ResponseEntity<AppointmentReadOnlyDTO> getAppointmentById(@PathVariable Long id) throws AppObjectNotFoundException {
+    public ResponseEntity<AppointmentReadOnlyDTO> getAppointmentById(@PathVariable Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         try {
             AppointmentReadOnlyDTO appointmentReadOnlyDTO = appointmentService.getAppointmentById(id);
             return new ResponseEntity<>(appointmentReadOnlyDTO, HttpStatus.OK);

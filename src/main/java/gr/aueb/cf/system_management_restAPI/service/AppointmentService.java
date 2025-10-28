@@ -1,6 +1,7 @@
 package gr.aueb.cf.system_management_restAPI.service;
 
 import gr.aueb.cf.system_management_restAPI.core.enums.AppointmentStatus;
+import gr.aueb.cf.system_management_restAPI.core.enums.Role;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectInvalidArgumentException;
 import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotAuthorizedException;
@@ -15,8 +16,10 @@ import gr.aueb.cf.system_management_restAPI.model.Appointment;
 import gr.aueb.cf.system_management_restAPI.model.Client;
 import gr.aueb.cf.system_management_restAPI.model.User;
 import gr.aueb.cf.system_management_restAPI.repository.AppointmentRepository;
+import gr.aueb.cf.system_management_restAPI.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,7 @@ public class AppointmentService implements IAppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final Mapper mapper;
     private final AppointmentValidationService validationService;
+    private final UserRepository userRepository;
     private final AppointmentQueryService queryService;
     private final SecurityService securityService;
 
@@ -72,8 +76,23 @@ public class AppointmentService implements IAppointmentService {
 
     @Override
     @Transactional(readOnly = true)
-    public AppointmentReadOnlyDTO getAppointmentById(Long id) throws AppObjectNotFoundException {
-        Appointment appointment = findAppointmentOrThrow(id);
+    public AppointmentReadOnlyDTO getAppointmentById(Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new AppObjectNotFoundException("Appointment", "Appointment not found"));
+
+        // Get current authenticated user
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppObjectNotFoundException("User", "User not found"));
+
+        // Authorization check
+        if (!currentUser.getRole().equals(Role.SUPER_ADMIN)) {
+            // If not SUPER_ADMIN, check if appointment belongs to user's client
+            if (!appointment.getClient().getUser().getId().equals(currentUser.getId())) {
+                throw new AppObjectNotAuthorizedException("Appointment", "You don't have permission to view this appointment");
+            }
+        }
+
         return mapper.mapToAppointmentReadOnlyDTO(appointment);
     }
 

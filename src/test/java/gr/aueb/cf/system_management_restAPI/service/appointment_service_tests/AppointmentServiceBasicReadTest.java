@@ -16,6 +16,7 @@ import gr.aueb.cf.system_management_restAPI.util.TestDataFactory;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
@@ -65,6 +66,7 @@ class AppointmentServiceBasicReadTest {
      * Should get appointment by ID.
      */
     @Test
+    @WithMockUser(username = "testuser", roles = {"CLIENT"})
     void getAppointmentById_ShouldReturn_WhenExists() throws Exception {
         // given
         Appointment existing = appointmentRepository.findAll().get(0);
