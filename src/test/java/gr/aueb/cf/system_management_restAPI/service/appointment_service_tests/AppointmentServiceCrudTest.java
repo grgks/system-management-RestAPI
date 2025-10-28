@@ -172,6 +172,7 @@ class AppointmentServiceCrudTest {
      * Should delete appointment successfully.
      */
     @Test
+    @WithMockUser(username = "testuser", roles = {"SUPER_ADMIN"})
     void deleteAppointment_ShouldDelete_WhenExists() throws Exception {
         // given
         createDummyAppointments();
