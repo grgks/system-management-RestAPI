@@ -106,9 +106,23 @@ public class AppointmentService implements IAppointmentService {
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void deleteAppointment(Long id) throws AppObjectNotFoundException {
-        Appointment appointment = findAppointmentOrThrow(id);
-        appointmentRepository.delete(appointment);
+    public void deleteAppointment(Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new AppObjectNotFoundException("Appointment", "Appointment not found"));
+
+        // Get current authenticated user
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User currentUser = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AppObjectNotFoundException("User", "User not found"));
+
+        // Authorization check
+        if (!currentUser.getRole().equals(Role.SUPER_ADMIN)) {
+            if (!appointment.getClient().getUser().getId().equals(currentUser.getId())) {
+                throw new AppObjectNotAuthorizedException("Appointment", "You don't have permission to delete this appointment");
+            }
+        }
+
+        appointmentRepository.deleteById(id);
     }
 
     @Override

@@ -20,7 +20,7 @@ public interface IAppointmentService {
     AppointmentReadOnlyDTO updateAppointment(Long id, AppointmentUpdateDTO dto) throws AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectNotAuthorizedException;
     AppointmentReadOnlyDTO getAppointmentById(Long id) throws AppObjectNotFoundException,AppObjectNotAuthorizedException;
     AppointmentReadOnlyDTO getAppointmentByUuid(String uuid) throws AppObjectNotFoundException;
-    void deleteAppointment(Long id) throws AppObjectNotFoundException;
+    void deleteAppointment(Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException;
     Page<AppointmentReadOnlyDTO> getPaginatedAppointments(int page, int size);
     Page<AppointmentReadOnlyDTO> getPaginatedSortedAppointments(int page, int size, String sortBy, String sortDirection);
     Paginated<AppointmentReadOnlyDTO> getAppointmentsFilteredPaginated(AppointmentFilters filters);

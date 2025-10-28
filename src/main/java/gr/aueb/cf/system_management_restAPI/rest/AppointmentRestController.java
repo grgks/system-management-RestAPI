@@ -260,7 +260,7 @@ public class AppointmentRestController {
     )
 
     @DeleteMapping("/appointments/{id}")
-    public ResponseEntity<Map<String, Object>> deleteAppointment(@PathVariable Long id) throws AppObjectNotFoundException {
+    public ResponseEntity<Map<String, Object>> deleteAppointment(@PathVariable Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         try {
             appointmentService.deleteAppointment(id);
             LOGGER.info("Appointment deleted with id: {}", id);
