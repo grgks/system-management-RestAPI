@@ -41,6 +41,16 @@ public class TestDBHelper {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement psFKOff = connection.prepareStatement(sqlFKOff)) {
 
+
+            String dbName = connection.getCatalog();
+            if (!dbName.contains("_test")) {
+                throw new IllegalStateException(
+                        "SAFETY CHECK FAILED! Refusing to erase non-test database: " + dbName +
+                                "\nTests should only use databases ending with '_test'!"
+                );
+            }
+
+
             // Disable foreign key checks
             psFKOff.executeUpdate();
 
