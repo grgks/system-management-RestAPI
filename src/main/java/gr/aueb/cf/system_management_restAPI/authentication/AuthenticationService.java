@@ -34,9 +34,10 @@ public class AuthenticationService {
 
         return new AuthenticationResponseDTO(
                 token,
+                "Bearer",
                 user.getUsername(),
                 user.getRole().name(),
-                user.getId().toString(),
+                //user.getId().toString(),
                 jwtService.getExpirationTime());
     }
 }

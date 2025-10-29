@@ -10,7 +10,10 @@ import gr.aueb.cf.system_management_restAPI.core.filters.Paginated;
 import gr.aueb.cf.system_management_restAPI.dto.ClientInsertDTO;
 import gr.aueb.cf.system_management_restAPI.dto.ClientReadOnlyDTO;
 import gr.aueb.cf.system_management_restAPI.dto.ClientUpdateDTO;
+import gr.aueb.cf.system_management_restAPI.model.Client;
+import gr.aueb.cf.system_management_restAPI.repository.ClientRepository;
 import gr.aueb.cf.system_management_restAPI.service.ClientService;
+import gr.aueb.cf.system_management_restAPI.service.SecurityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,6 +42,8 @@ public class ClientRestController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientRestController.class);
     private final ClientService clientService;
+    private final SecurityService securityService;
+    private final ClientRepository clientRepository;
 
     @Operation(
             summary = "Get all clients paginated",
@@ -283,12 +288,24 @@ public class ClientRestController {
     @DeleteMapping("/clients/{id}")
     public ResponseEntity<Map<String, Object>> deleteClient(@PathVariable Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         try {
+            // Get current username BEFORE deleting
+            String currentUsername = securityService.getCurrentUsername();
+
+            // Get the client to check if it's self-delete
+            Client clientToDelete = clientRepository.findById(id)
+                    .orElseThrow(() -> new AppObjectNotFoundException("Client",
+                            "Client with id: " + id + " not found"));
+
+            boolean isSelfDelete = clientToDelete.getUser().getUsername().equals(currentUsername);
+
+            // Delete the client
             clientService.deleteClient(id);
             LOGGER.info("Client deleted with id: {}", id);
 
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Client deleted successfully");
             response.put("clientId", id);
+            response.put("selfDelete", isSelfDelete);  // ← Frontend θα διαβάσει αυτό!
             response.put("timestamp", LocalDateTime.now());
 
             return new ResponseEntity<>(response, HttpStatus.OK);

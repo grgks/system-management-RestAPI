@@ -1,10 +1,7 @@
 package gr.aueb.cf.system_management_restAPI.rest;
 
 
-import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectAlreadyExists;
-import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectInvalidArgumentException;
-import gr.aueb.cf.system_management_restAPI.core.exceptions.AppObjectNotFoundException;
-import gr.aueb.cf.system_management_restAPI.core.exceptions.ValidationException;
+import gr.aueb.cf.system_management_restAPI.core.exceptions.*;
 import gr.aueb.cf.system_management_restAPI.core.enums.AppointmentStatus;
 import gr.aueb.cf.system_management_restAPI.dto.AppointmentInsertDTO;
 import gr.aueb.cf.system_management_restAPI.dto.AppointmentReadOnlyDTO;
@@ -115,7 +112,7 @@ public class AppointmentRestController {
     @PostMapping("/appointments/save")
     public ResponseEntity<AppointmentReadOnlyDTO> saveAppointment(
             @Valid @RequestBody AppointmentInsertDTO appointmentInsertDTO,
-            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectInvalidArgumentException {
+            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException, AppObjectAlreadyExists, AppObjectInvalidArgumentException ,AppObjectNotAuthorizedException{
 
         if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult);
@@ -154,7 +151,8 @@ public class AppointmentRestController {
     public ResponseEntity<AppointmentReadOnlyDTO> updateAppointment(
             @PathVariable Long id,
             @Valid @RequestBody AppointmentUpdateDTO appointmentUpdateDTO,
-            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException, AppObjectAlreadyExists {
+            BindingResult bindingResult) throws ValidationException, AppObjectNotFoundException,
+            AppObjectAlreadyExists, AppObjectNotAuthorizedException {
 
         if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult);
@@ -190,7 +188,7 @@ public class AppointmentRestController {
             }
     )
     @GetMapping("/appointments/{id}")
-    public ResponseEntity<AppointmentReadOnlyDTO> getAppointmentById(@PathVariable Long id) throws AppObjectNotFoundException {
+    public ResponseEntity<AppointmentReadOnlyDTO> getAppointmentById(@PathVariable Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         try {
             AppointmentReadOnlyDTO appointmentReadOnlyDTO = appointmentService.getAppointmentById(id);
             return new ResponseEntity<>(appointmentReadOnlyDTO, HttpStatus.OK);
@@ -262,7 +260,7 @@ public class AppointmentRestController {
     )
 
     @DeleteMapping("/appointments/{id}")
-    public ResponseEntity<Map<String, Object>> deleteAppointment(@PathVariable Long id) throws AppObjectNotFoundException {
+    public ResponseEntity<Map<String, Object>> deleteAppointment(@PathVariable Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         try {
             appointmentService.deleteAppointment(id);
             LOGGER.info("Appointment deleted with id: {}", id);
