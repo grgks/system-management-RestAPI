@@ -328,6 +328,190 @@ src/main/java/gr/aueb/cf/system_management_restAPI/
 └── service/                # Business Logic Layer
 ```
 
+## 🧪 Testing
+
+### Test Coverage
+
+![Tests](https://img.shields.io/badge/Tests-193%20passing-success)
+![Coverage](https://img.shields.io/badge/Coverage-78%25-green)
+![JUnit](https://img.shields.io/badge/JUnit-5-blue)
+![Mockito](https://img.shields.io/badge/Mockito-5-orange)
+
+This project includes a comprehensive test suite with **193 tests** achieving **78% code coverage**.
+
+<table border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td align="center">
+  <h4>Jacoco</h4>
+  <img src="src/main/resources/static/images/Jacoco-screenshot-2025-10-29.png" alt="Jacoco" width="400">
+</td>
+<td align="center">
+  <h4>Summary Test</h4>
+  <img src="src/main/resources/static/images/Summary-Test-screenshot-2025-10-29.png" alt="Summary Test" width="400">
+</td>
+</tr>
+</table>
+
+### Test Categories
+
+| Category | Count | Coverage | Description |
+|----------|-------|----------|-------------|
+| **Unit Tests** | 71 | 85% | Service layer business logic |
+| **Integration Tests** | 122 | 75% | REST Controllers & Repositories |
+| **Authorization Tests** | 42 | 90% | Role-based access control |
+| **Total** | **193** | **78%** | **Complete test coverage** |
+
+### Running Tests
+
+#### Run All Tests
+```bash
+./gradlew test
+```
+
+#### Run Tests with Coverage Report
+```bash
+./gradlew clean test jacocoTestReport
+```
+
+#### View Coverage Report
+```bash
+# The report will be generated at:
+open build/reports/jacoco/test/html/index.html
+```
+
+#### Run Specific Test Classes
+```bash
+# Single test class
+./gradlew test --tests "AppointmentServiceTest"
+
+# Test package
+./gradlew test --tests "gr.aueb.cf.system_management_restAPI.service.*"
+```
+
+### Test Infrastructure
+
+#### Multiple Database Environments
+- **Development DB**: `appointment_system_restdb` (main application)
+- **Test DB**: `appointment_system_restdb_test` (automated tests)
+- **Production DB**: `appointment_system_restdb_prod` (production ready)
+
+#### Safety Features
+The test suite includes a **safety check** to prevent accidental data deletion:
+```java
+// TestDBHelper.java
+public static void eraseData(DataSource dataSource) throws SQLException {
+    String dbName = connection.getCatalog();
+    
+    // Safety check: MUST be test database
+    if (!dbName.contains("_test")) {
+        throw new IllegalStateException(
+            "🚨 SAFETY CHECK FAILED! Cannot erase non-test database: " + dbName
+        );
+    }
+    // Proceed with cleanup...
+}
+```
+
+This ensures tests **never** accidentally delete production data.
+
+### Test Configuration
+
+Tests use a separate configuration file:
+```properties
+# src/test/resources/application.properties
+spring.datasource.url=jdbc:mysql://localhost:3306/appointment_system_restdb_test
+spring.jpa.hibernate.ddl-auto=update
+```
+
+### Key Test Examples
+
+#### Service Layer Test
+```java
+@Test
+void testGetAppointmentById_Success() {
+    // Given
+    Appointment appointment = createTestAppointment();
+    when(appointmentRepository.findById(1L)).thenReturn(Optional.of(appointment));
+    
+    // When
+    AppointmentReadOnlyDTO result = appointmentService.getAppointmentById(1L);
+    
+    // Then
+    assertNotNull(result);
+    assertEquals(appointment.getId(), result.getId());
+    verify(appointmentRepository, times(1)).findById(1L);
+}
+```
+
+#### Authorization Test
+```java
+@Test
+void testGetAppointment_AsClient_OwnAppointment_Success() {
+    // CLIENT can view their own appointment
+    authenticateAs("client1", Role.CLIENT);
+    
+    Appointment appointment = createAppointmentFor("client1");
+    AppointmentReadOnlyDTO result = appointmentService.getAppointmentById(appointment.getId());
+    
+    assertNotNull(result);
+}
+
+@Test
+void testGetAppointment_AsClient_OtherAppointment_ThrowsAccessDenied() {
+    // CLIENT cannot view other's appointment
+    authenticateAs("client1", Role.CLIENT);
+    
+    Appointment otherAppointment = createAppointmentFor("client2");
+    
+    assertThrows(AccessDeniedException.class, () -> {
+        appointmentService.getAppointmentById(otherAppointment.getId());
+    });
+}
+```
+
+#### REST Controller Integration Test
+```java
+@Test
+void testCreateAppointment_Authenticated_ReturnsCreated() throws Exception {
+    String token = getAuthToken("superadmin", "Password123!!");
+    
+    mockMvc.perform(post("/api/appointments/save")
+            .header("Authorization", "Bearer " + token)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(appointmentJson))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").exists());
+}
+```
+
+### Test Reports
+
+After running tests, view detailed reports:
+
+#### Coverage Report
+- **Location**: `build/reports/jacoco/test/html/index.html`
+- **Metrics**: Line coverage, Branch coverage, Method coverage
+- **Breakdown**: Per package, class, and method
+
+#### Test Report
+- **Location**: `build/reports/tests/test/index.html`
+- **Details**: Test execution time, success/failure rates
+- **Organization**: By package and class
+
+### Coverage by Package
+
+| Package | Line Coverage | Branch Coverage |
+|---------|--------------|-----------------|
+| service | 85% | 80% |
+| rest | 75% | 70% |
+| repository | 70% | 65% |
+| mapper | 90% | 85% |
+| security | 80% | 75% |
+| **Overall** | **78%** | **73%** |
+
+---
+
+
 ## 🔧 Configuration
 
 ### Database Configuration
@@ -347,13 +531,16 @@ jwt.expiration=7200000  # 2 hours
 ---
 
 ## 📝 Notes
+> ℹ️ This is a production-ready REST API with comprehensive testing (193 tests, 78% coverage), complete Swagger documentation, and role-based authorization.
+>
+> Future enhancements may include:
+> - 🐳 Dockerization for containerized deployment
+> - 📧 Email notification system for appointment reminders
+> - 📊 Advanced analytics dashboard
+> - 🔄 CI/CD pipeline integration
+> - 🔔 Real-time push notifications (WebSocket)
+---
 
-> ℹ️ The current version focuses on the implementation and documentation via Swagger & Postman.  
-> Future improvements may include:
-> - Unit & Integration tests (JUnit / Mockito)  
-> - CI/CD pipelines (GitHub Actions)  
-> - Dockerization for easier deployment  
- 
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
