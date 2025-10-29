@@ -6,10 +6,18 @@
 ![JWT](https://img.shields.io/badge/JWT-Auth-red)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
-A comprehensive **Spring Boot REST API** for managing client appointments and user administration with **JWT authentication**, **role-based authorization**, and **advanced filtering capabilities**.
-Developed as the Capstone Project for  **[Coding Factory, Athens University of Economics and Business (AUEB).](https://codingfactory.aueb.gr/)**
 
-- 👉 A complete React-based frontend that integrates with this API can be found here:  
+A **production-grade Spring Boot REST API** for client and appointment management, featuring **secure JWT authentication**, **role-based authorization**, and **advanced filtering capabilities**.  
+
+Designed and implemented as the **Capstone Project** for the [Coding Factory, Athens University of Economics and Business (AUEB)](https://codingfactory.aueb.gr/).  
+
+🧠 Built with a **clean, modular architecture**, **193 automated tests** (unit + integration) reaching **78% coverage**, and full **Swagger/OpenAPI documentation** — ensuring **reliability, maintainability, and scalability** for real-world deployment.
+
+
+[![Latest Release](https://img.shields.io/github/v/release/grgks/system-management-RestAPI?color=brightgreen)](https://github.com/grgks/system-management-RestAPI/releases/tag/v1.0.0)
+
+
+ - 👉 A complete React-based frontend that integrates with this API can be found here:  
 [WorkApp Frontend](https://github.com/grgks/appointment-system-react)
 ---
 ## 📸 Screenshots
@@ -244,7 +252,7 @@ Login Credentials:
 Username: superadmin
 Password: Password123!!
 ```
-### Postman -> Body-> raw -> Json
+### Postman ➡️ Body ➡️ raw ➡️ Json
 ```
 {
   "username": "superadmin",
@@ -253,7 +261,7 @@ Password: Password123!!
 ```
 ### Use the Token
 ```bash
-Authorization: Bearer <your_jwt_token>        ----> Ready to navigate with privilliges
+Authorization: Bearer <your_jwt_token>        ➡️ Ready to navigate with privilliges
 ```
 ---
 
@@ -302,7 +310,7 @@ Content-Type: application/json
 Authorization: Bearer <your_jwt_token>
 ```
 
-### 5. Enjoy surfing
+### 4. Enjoy surfing
 ---
 
 ## 📝 Key API Endpoints
@@ -352,7 +360,7 @@ This project includes a comprehensive test suite with **193 tests** achieving **
 </tr>
 </table>
 
-### Test Categories
+### 🟢 Test Categories
 
 | Category | Count | Coverage | Description |
 |----------|-------|----------|-------------|
@@ -361,9 +369,9 @@ This project includes a comprehensive test suite with **193 tests** achieving **
 | **Authorization Tests** | 42 | 90% | Role-based access control |
 | **Total** | **193** | **78%** | **Complete test coverage** |
 
-### Running Tests
+### 🟢 Running Tests
 
-#### Run All Tests
+####  Run All Tests
 ```bash
 ./gradlew test
 ```
@@ -388,14 +396,14 @@ open build/reports/jacoco/test/html/index.html
 ./gradlew test --tests "gr.aueb.cf.system_management_restAPI.service.*"
 ```
 
-### Test Infrastructure
+#### 🟢 Test Infrastructure
 
 #### Multiple Database Environments
 - **Development DB**: `appointment_system_restdb` (main application)
 - **Test DB**: `appointment_system_restdb_test` (automated tests)
 - **Production DB**: `appointment_system_restdb_prod` (production ready)
 
-#### Safety Features
+#### 🟢 Safety Features
 The test suite includes a **safety check** to prevent accidental data deletion:
 ```java
 // TestDBHelper.java
@@ -414,7 +422,7 @@ public static void eraseData(DataSource dataSource) throws SQLException {
 
 This ensures tests **never** accidentally delete production data.
 
-### Test Configuration
+### 🟢 Test Configuration
 
 Tests use a separate configuration file:
 ```properties
@@ -423,9 +431,9 @@ spring.datasource.url=jdbc:mysql://localhost:3306/appointment_system_restdb_test
 spring.jpa.hibernate.ddl-auto=update
 ```
 
-### Key Test Examples
+### 🟢 Key Test Examples
 
-#### Service Layer Test
+#### 🟢 Service Layer Test
 ```java
 @Test
 void testGetAppointmentById_Success() {
@@ -443,7 +451,7 @@ void testGetAppointmentById_Success() {
 }
 ```
 
-#### Authorization Test
+#### 🟢 Authorization Test
 ```java
 @Test
 void testGetAppointment_AsClient_OwnAppointment_Success() {
@@ -469,7 +477,7 @@ void testGetAppointment_AsClient_OtherAppointment_ThrowsAccessDenied() {
 }
 ```
 
-#### REST Controller Integration Test
+#### 🟢 REST Controller Integration Test
 ```java
 @Test
 void testCreateAppointment_Authenticated_ReturnsCreated() throws Exception {
@@ -484,21 +492,21 @@ void testCreateAppointment_Authenticated_ReturnsCreated() throws Exception {
 }
 ```
 
-### Test Reports
+### 🟢 Test Reports
 
 After running tests, view detailed reports:
 
-#### Coverage Report
+#### 🟢 Coverage Report
 - **Location**: `build/reports/jacoco/test/html/index.html`
 - **Metrics**: Line coverage, Branch coverage, Method coverage
 - **Breakdown**: Per package, class, and method
 
-#### Test Report
+#### 🟢 Test Report
 - **Location**: `build/reports/tests/test/index.html`
 - **Details**: Test execution time, success/failure rates
 - **Organization**: By package and class
 
-### Coverage by Package
+### 🟢 Coverage by Package
 
 | Package | Line Coverage | Branch Coverage |
 |---------|--------------|-----------------|
