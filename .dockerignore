@@ -1,0 +1,45 @@
+# Build outputs
+build/
+target/
+out/
+*.jar
+*.war
+
+# Gradle
+.gradle/
+gradle-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+README.md
+docs/
+
+# Test reports
+.jacoco/
+
+# Environment files
+.env
+*.env
+!.env.example
+
+# Logs
+logs/
+*.log

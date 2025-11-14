@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: workapp-db-test
+    environment:
+      MYSQL_ROOT_PASSWORD: testpassword
+      MYSQL_DATABASE: appointment_system_restdb
+    ports:
+      - "3307:3306"
+    volumes:
+      - test-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ptestpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - workapp-network
+
+  backend:
+    image: grgks/workapp-backend:latest
+    container_name: workapp-backend-test
+    ports:
+      - "8080:8080"
+    environment:
+      DB_USERNAME: root
+      DB_PASSWORD: testpassword
+      DB_NAME: appointment_system_restdb
+      JWT_SECRET: test-jwt-secret-key-minimum-256-bits-long
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - workapp-network
+
+volumes:
+  test-db-data:
+
+networks:
+  workapp-network:
