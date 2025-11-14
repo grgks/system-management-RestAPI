@@ -30,3 +30,15 @@ jobs:
           tags: grgks/workapp-backend:latest
           cache-from: type=registry,ref=grgks/workapp-backend:buildcache
           cache-to: type=registry,ref=grgks/workapp-backend:buildcache,mode=max
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: grgks/workapp-backend:latest
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
