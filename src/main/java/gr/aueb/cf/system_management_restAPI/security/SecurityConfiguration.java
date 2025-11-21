@@ -68,7 +68,10 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000",
-                "http://localhost:5173", "http://localhost:5174","http://localhost:8080"));
+                "http://localhost:5173",
+                "http://localhost:5174",
+                "http://localhost:8080",
+                "https://appointment-system-react-one.vercel.app"));
         corsConfiguration.setAllowedMethods(List.of("*"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setAllowCredentials(true);
