@@ -10,6 +10,7 @@
 ![CI/CD](https://img.shields.io/badge/CI/CD-GitHub%20Actions-2088FF?logo=github-actions)
 ![Security](https://img.shields.io/badge/Security-Trivy%20Scan-4B275F?logo=aqua)
 
+
 A **production-grade Spring Boot REST API** for client and appointment management, featuring **secure JWT authentication**, **role-based authorization**, and **advanced filtering capabilities**.  
 
 Designed and implemented as the **Capstone Project** for the [Coding Factory, Athens University of Economics and Business (AUEB)](https://codingfactory.aueb.gr/).  
@@ -19,7 +20,15 @@ Designed and implemented as the **Capstone Project** for the [Coding Factory, At
 
 [![Latest Release](https://img.shields.io/github/v/release/grgks/system-management-RestAPI?color=brightgreen)](https://github.com/grgks/system-management-RestAPI/releases/tag/v1.0.0)
 
+---
+## 🌐 Live Production
 
+**Production API:** https://system-management-restapi.onrender.com
+
+**Live Documentation:** https://system-management-restapi.onrender.com/swagger-ui.html
+
+⚠️ **Note:** First request may take 30-60 seconds (cold start on free tier)
+---
  - 👉 A complete React-based frontend that integrates with this API can be found here:  
 [WorkApp Frontend](https://github.com/grgks/appointment-system-react)
 ---
@@ -602,6 +611,33 @@ git clone https://github.com/grgks/workapp-deployment.git
 cd workapp-deployment
 docker-compose up -d
 ```
+
+## ☁️ Production Deployment
+
+### Render Platform
+
+This API is deployed on **[Render](https://render.com)** using Docker containers.
+
+**Deployment Features:**
+- ✅ Automated deployments from GitHub
+- ✅ Docker-based deployment
+- ✅ Environment variables management
+- ✅ Automatic HTTPS
+- ✅ Health checks and monitoring
+
+**Production URL:** https://system-management-restapi.onrender.com
+
+**Connected Frontend:** https://appointment-system-react-one.vercel.app
+
+### Environment Configuration
+
+Production environment uses the following configuration:
+- **Database:** MySQL 8.0
+- **CORS:** Configured for Vercel frontend
+- **JWT:** Production secret key
+- **Port:** 8080
+
+**Note:** Cold starts may occur on free tier (30-60s first request)
 
 ## 🔄 CI/CD & Security
 
