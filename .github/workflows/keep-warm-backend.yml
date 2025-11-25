@@ -1,0 +1,27 @@
+name: Keep Render backend warm
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch: {} #  manual run
+
+concurrency:
+  group: keep-warm-backend
+  cancel-in-progress: true
+
+jobs:
+  ping-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping render backend (keep-warm)
+        run: |
+          set -euo pipefail
+          URL="https://system-management-restapi.onrender.com/"
+          TARGET="${URL}?_cb=$(date +%s)"
+          echo "Pinging: $TARGET"
+          STATUS=$(curl --max-time 10 --retry 3 --retry-delay 5 -s -o /dev/null -w "%{http_code}" -A "keep-warm-bot/1.0" "$TARGET" || echo "000")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" = "000" ]; then
+            echo "Request failed."
+            exit 1
+          fi
