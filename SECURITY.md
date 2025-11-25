@@ -18,7 +18,7 @@ This project demonstrates:
 While this is an educational project without active maintenance, responsible disclosure is appreciated:
 
 1. **Do NOT** create public GitHub issues for security concerns
-2. Send me a direct message on GitHub
+2. Send me a direct email 
 3. Include:
    - Description of the vulnerability
    - Steps to reproduce
