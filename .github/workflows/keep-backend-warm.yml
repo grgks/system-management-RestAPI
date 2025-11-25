@@ -24,7 +24,7 @@ jobs:
           # But that's OK - it wakes up the backend!
           response=$(curl -s -o /dev/null -w "%{http_code}" \
             --max-time 60 \
-            https://workapp-backend-g4v1.onrender.com/api/auth/authenticate)
+            https://system-management-restapi.onrender.com)
           
           echo "Response code: $response"
           
