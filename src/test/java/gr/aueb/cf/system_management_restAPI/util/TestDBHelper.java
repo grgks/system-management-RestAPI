@@ -41,7 +41,7 @@ public class TestDBHelper {
         try (Connection connection = dataSource.getConnection();
              PreparedStatement psFKOff = connection.prepareStatement(sqlFKOff)) {
 
-
+            // Safety check: MUST be test database
             String dbName = connection.getCatalog();
             if (!dbName.contains("_test")) {
                 throw new IllegalStateException(
