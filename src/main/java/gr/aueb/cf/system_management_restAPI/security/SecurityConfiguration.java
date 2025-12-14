@@ -2,6 +2,7 @@ package gr.aueb.cf.system_management_restAPI.security;
 
 import gr.aueb.cf.system_management_restAPI.authentication.JwtAuthenticationFilter;
 import gr.aueb.cf.system_management_restAPI.core.enums.Role;
+import gr.aueb.cf.system_management_restAPI.service.SecurityAuditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +34,7 @@ public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
+    private final SecurityAuditService securityAuditService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,7 +42,7 @@ public class SecurityConfiguration {
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(myCustomAuthenticationEntryPoint()))
-                .exceptionHandling(exceptions -> exceptions.accessDeniedHandler(myCustomAccessDeniedHandler()))
+                .exceptionHandling(exceptions -> exceptions.accessDeniedHandler(myCustomAccessDeniedHandler(securityAuditService)))
                 .authorizeHttpRequests(req -> req
 //                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
@@ -104,7 +106,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public AccessDeniedHandler myCustomAccessDeniedHandler() {
-        return new CustomAccessDeniedHandler();
+    public AccessDeniedHandler myCustomAccessDeniedHandler(SecurityAuditService securityAuditService) {
+        return new CustomAccessDeniedHandler(securityAuditService);
     }
 }
