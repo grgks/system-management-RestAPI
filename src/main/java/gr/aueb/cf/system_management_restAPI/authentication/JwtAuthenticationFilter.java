@@ -1,6 +1,7 @@
 package gr.aueb.cf.system_management_restAPI.authentication;
 
 import gr.aueb.cf.system_management_restAPI.security.JwtService;
+import gr.aueb.cf.system_management_restAPI.service.SecurityAuditService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -30,6 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final SecurityAuditService securityAuditService;
 
     @Override
     protected void doFilterInternal(
@@ -127,6 +129,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (ExpiredJwtException e) {
             LOGGER.warn("WARN: Expired token", e);
+            try {
+                String expiredTokenUsername = e.getClaims().getSubject();  // Get username from expired token
+                String ipAddress = getClientIpAddress(request);
+                securityAuditService.logTokenExpired(expiredTokenUsername, ipAddress);
+            } catch (Exception logEx) {
+                LOGGER.error("Failed to log expired token event", logEx);
+            }
+
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
             String jsonBody = "{\"code\": \"expired_token\", \"message\": \"" + e.getMessage() + "\"}";
@@ -134,6 +144,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         } catch (Exception e) {
             LOGGER.warn("WARN: Something went wrong while parsing JWT", e);
+
+            try {
+                String ipAddress = getClientIpAddress(request);
+                String reason = e.getClass().getSimpleName() + ": " + e.getMessage();
+                // ↑ Examples:
+//   "MalformedJwtException: JWT strings must contain exactly 2 period characters"
+//   "SignatureException: JWT signature does not match"
+//   "IllegalArgumentException: JWT String argument cannot be null or empty"
+
+// Helps us understand WHAT kind of attack:
+// - Tampered token? → SignatureException
+// - Garbage data?   → MalformedJwtException
+// - Missing token?  → IllegalArgumentException
+
+                securityAuditService.logInvalidToken(ipAddress, reason);
+            } catch (Exception logEx) {
+                LOGGER.error("Failed to log invalid token event", logEx);
+            }
+
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setContentType("application/json");
             String jsonBody = "{\"code\": \"invalid_token\", \"description\": \"" + e.getMessage() + "\"}";
@@ -141,5 +170,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Helper: Extract client IP address (handles proxies)
+     */
+    private String getClientIpAddress(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("X-Real-IP");
+        }
+
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+
+        // Handle multiple IPs (proxy chain)
+        if (ip != null && ip.contains(",")) {
+            ip = ip.split(",")[0].trim();
+        }
+
+        return ip != null ? ip : "unknown";
     }
 }
