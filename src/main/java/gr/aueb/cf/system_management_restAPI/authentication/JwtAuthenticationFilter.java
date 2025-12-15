@@ -40,8 +40,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
-
-        LOGGER.info("Processing request path: {}", path);
+//        LOGGER.info("JWT FILTER HIT - path: {}", request.getRequestURI());
+//        LOGGER.info("Processing request path: {}", path);
 
         // Skip Swagger-related paths
         if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") || path.equals("/swagger-ui.html")) {
@@ -61,6 +61,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         //process token if present, but don't require it
         if (path.equals("/api/clients/save")) {
+//            LOGGER.info("Authorization header = {}", request.getHeader("Authorization"));
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 jwt = authHeader.substring(7);
                 try {
@@ -80,8 +81,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             );
                             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                             SecurityContextHolder.getContext().setAuthentication(authToken);
-                            LOGGER.info("Authentication set for client/save with role: {}", userDetails.getAuthorities());
-                        }
+//                            LOGGER.info("AUTH SET: {}", SecurityContextHolder.getContext().getAuthentication());
+//                            LOGGER.info("Authentication set for client/save with role: {}", userDetails.getAuthorities());
+                          }
                     }
                 } catch (Exception e) {
                     LOGGER.warn("Invalid token for /api/clients/save, proceeding without auth: {}", e.getMessage());
@@ -96,7 +98,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
             response.getWriter().write("{\"code\": \"userNotAuthenticated\", \"description\": \"User must authenticate in order to access this endpoint\"}");
-           // filterChain.doFilter(request, response);
+          //  filterChain.doFilter(request, response);
             return;
         }
         jwt = authHeader.substring(7);
@@ -104,6 +106,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             username = jwtService.extractSubject(jwt);
             userRole = jwtService.getStringClaim(jwt, "role");
+
+//            // ----------------- DEBUG PRINT -----------------
+//            LOGGER.info("DEBUG: JWT subject = {}", username);
+//            LOGGER.info("DEBUG: JWT role claim = {}", userRole);
+//            // ------------------------------------------------
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -153,7 +160,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //   "SignatureException: JWT signature does not match"
 //   "IllegalArgumentException: JWT String argument cannot be null or empty"
 
-// Helps us understand WHAT kind of attack:
+// Helps  understand WHAT kind of attack:
 // - Tampered token? → SignatureException
 // - Garbage data?   → MalformedJwtException
 // - Missing token?  → IllegalArgumentException
