@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -29,6 +30,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity  //kanei to preauthorize active ->@PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')") Lvl 2 security layer
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
@@ -54,7 +56,7 @@ public class SecurityConfiguration {
                         // Protected endpoints με roles
                         .requestMatchers("/api/clients/**").hasAnyAuthority(Role.CLIENT.getAuthority(), Role.SUPER_ADMIN.getAuthority())
                         .requestMatchers("/api/appointments/**").hasAnyAuthority(Role.CLIENT.getAuthority(), Role.PATIENT.getAuthority(), Role.SUPER_ADMIN.getAuthority())
-                        .requestMatchers("/api/admin/**").hasAnyAuthority(Role.SUPER_ADMIN.getAuthority())
+                        .requestMatchers("/api/admin/security/**").hasAnyAuthority(Role.SUPER_ADMIN.getAuthority())
 
 
                         .anyRequest().authenticated()
