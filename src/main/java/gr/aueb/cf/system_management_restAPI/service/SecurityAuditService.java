@@ -25,7 +25,6 @@ public class SecurityAuditService {
      *  @Async: We do not want to  slow down το authentication request!
      */
     @Async
-    @Transactional
     public void logSecurityEvent(
             String eventType,
             String username,
