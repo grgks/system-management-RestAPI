@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/admin/security")
 @RequiredArgsConstructor
 @Tag(name = "Security Dashboard", description = "Security monitoring and audit APIs")
-@SecurityRequirement(name = "bearerAuth")
+@SecurityRequirement(name = "Bearer Authentication")
 public class SecurityDashboardController {
 
     private final SecurityAuditService securityAuditService;
