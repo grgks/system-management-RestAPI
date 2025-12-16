@@ -14,7 +14,9 @@ import gr.aueb.cf.system_management_restAPI.model.Client;
 import gr.aueb.cf.system_management_restAPI.model.User;
 import gr.aueb.cf.system_management_restAPI.repository.ClientRepository;
 import gr.aueb.cf.system_management_restAPI.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,10 @@ public class ClientService implements IClientService {
     private final SecurityService securityService;
     private final ClientValidationService validationService;
     private final ClientQueryService queryService;
+    private final SecurityCrudAuditService crudAuditService;
+
+    @Autowired
+    private HttpServletRequest request;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -63,6 +69,21 @@ public class ClientService implements IClientService {
         User savedUser = createAndSaveUser(dto);
         Client savedClient = createAndSaveClient(dto, savedUser);
 
+
+        //Log create action
+        String username = securityService.getCurrentUsername();
+        String ipAddress = securityService.getClientIpAddress(request);
+
+        String clientName = savedClient.getPersonalInfo().getFirstName() + " " +
+                savedClient.getPersonalInfo().getLastName();
+
+        crudAuditService.logClientCreated(
+                username != null ? username : "anonymous",
+                ipAddress,
+                request,
+                savedClient.getId(),
+                clientName
+        );
         return mapper.mapToClientReadOnlyDTO(savedClient);
     }
 
@@ -75,8 +96,22 @@ public class ClientService implements IClientService {
         securityService.validateUserAccess(existingClient.getUser().getUsername(), "Client", id.toString());
         validationService.validateClientUpdate(id, dto);
 
+
         mapper.updateClientFromDTO(dto, existingClient);
         Client updatedClient = clientRepository.save(existingClient);
+
+        //  LOG UPDATE ACTION
+        String ipAddress = securityService.getClientIpAddress(request);
+        String clientName = existingClient.getPersonalInfo().getFirstName() + " " +
+                existingClient.getPersonalInfo().getLastName();
+
+        crudAuditService.logClientUpdated(
+                securityService.getCurrentUsername(),
+                ipAddress,
+                request,
+                updatedClient.getId(),
+                clientName
+        );
 
         return mapper.mapToClientReadOnlyDTO(updatedClient);
     }
@@ -135,10 +170,24 @@ public class ClientService implements IClientService {
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public void deleteClient(Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
+
         Client client = findClientOrThrow(id);
         securityService.validateUserAccess(client.getUser().getUsername(), "Client", id.toString());
 
         User user = client.getUser();
+
+        //  LOG DELETE ACTION
+        String ipAddress = securityService.getClientIpAddress(request);
+        String clientName = client.getPersonalInfo().getFirstName() + " " +
+                client.getPersonalInfo().getLastName();
+
+        crudAuditService.logClientDeleted(
+                securityService.getCurrentUsername(),
+                ipAddress,
+                request,
+                client.getId(),
+                clientName
+        );
 
         clientRepository.delete(client);
         userRepository.delete(user);
