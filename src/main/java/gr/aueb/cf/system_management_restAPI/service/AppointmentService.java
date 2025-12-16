@@ -27,6 +27,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
+
 @Service
 @RequiredArgsConstructor
 public class AppointmentService implements IAppointmentService {
@@ -37,6 +40,10 @@ public class AppointmentService implements IAppointmentService {
     private final UserRepository userRepository;
     private final AppointmentQueryService queryService;
     private final SecurityService securityService;
+    private final SecurityCrudAuditService crudAuditService;
+
+    @Autowired
+    private HttpServletRequest request;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -51,6 +58,20 @@ public class AppointmentService implements IAppointmentService {
         // Create and save appointment
         Appointment appointment = createAppointment(dto, existingUser, existingClient);
         Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        // LOG  CREATE ACTION
+        String username = securityService.getCurrentUsername();
+        String ipAddress = securityService.getClientIpAddress(request);
+        String clientName = existingClient.getPersonalInfo().getFirstName() + " " +
+                existingClient.getPersonalInfo().getLastName();
+
+        crudAuditService.logAppointmentCreated(
+                username,
+                ipAddress,
+                request,
+                savedAppointment.getId(),
+                clientName
+        );
 
         return mapper.mapToAppointmentReadOnlyDTO(savedAppointment);
     }
@@ -70,6 +91,26 @@ public class AppointmentService implements IAppointmentService {
 
         mapper.updateAppointmentFromDTO(dto, existingAppointment);
         Appointment updatedAppointment = appointmentRepository.save(existingAppointment);
+
+        //LOG  UPDATE ACTION
+        String ipAddress = securityService.getClientIpAddress(request);
+        String clientName = existingAppointment.getClient().getPersonalInfo().getFirstName() + " " +
+                existingAppointment.getClient().getPersonalInfo().getLastName();
+
+        // Determine what changed (optional - better logging)
+        String changes = "Appointment updated";
+        if (dto.getStatus() != null) {
+            changes = "Status changed to " + dto.getStatus();
+        }
+
+        crudAuditService.logAppointmentUpdated(
+                securityService.getCurrentUsername(),
+                ipAddress,
+                request,
+                updatedAppointment.getId(),
+                clientName,
+                changes
+        );
 
         return mapper.mapToAppointmentReadOnlyDTO(updatedAppointment);
     }
@@ -121,6 +162,20 @@ public class AppointmentService implements IAppointmentService {
                 throw new AppObjectNotAuthorizedException("Appointment", "You don't have permission to delete this appointment");
             }
         }
+
+        // LOG DELETE ACTION
+        String ipAddress = securityService.getClientIpAddress(request);
+        String clientName = appointment.getClient().getPersonalInfo().getFirstName() + " " +
+                appointment.getClient().getPersonalInfo().getLastName();
+
+        crudAuditService.logAppointmentDeleted(
+                username,
+                ipAddress,
+                request,
+                appointment.getId(),
+                clientName,
+                "Appointment deleted by user"
+        );
 
         appointmentRepository.deleteById(id);
     }
