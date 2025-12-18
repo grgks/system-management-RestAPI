@@ -11,7 +11,7 @@ import java.util.Map;
 @Entity
 @Table(name = "security_audit_logs", indexes = {
         @Index(name = "idx_timestamp", columnList = "timestamp"),
-        @Index(name = "idx_event_type", columnList = "eventType"),
+        @Index(name = "idx_event_type", columnList = "event_Type"),
         @Index(name = "idx_username", columnList = "username")  // --> quick queries
 })
 @Getter
@@ -36,8 +36,9 @@ public class SecurityAuditLog {
     @Column(name = "user_agent", columnDefinition = "TEXT")
     private String userAgent;
 
+
     @JdbcTypeCode(SqlTypes.JSON)  //Tells Hibernate: JSON handling
-    @Column(name = "details", columnDefinition = "JSON")   //tells MySQL: JSON column
+    @Column(name = "details")   //tells MySQL: JSON column  (, columnDefinition = "JSON")
     private Map<String, Object> details  = new HashMap<>();
 
     @Column(name = "success", nullable = false)
