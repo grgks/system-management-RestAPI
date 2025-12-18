@@ -37,4 +37,40 @@ public class SecurityService {
             }
         }
     }
+
+    /**
+     * Get client's IP address from HttpServletRequest
+     * Handles X-Forwarded-For header (for proxies/load balancers)
+     */
+    public String getClientIpAddress(jakarta.servlet.http.HttpServletRequest request) {
+        if (request == null) {
+            return "unknown";
+        }
+
+        // Check X-Forwarded-For header (for proxies/load balancers)
+        String ipAddress = request.getHeader("X-Forwarded-For");
+
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("Proxy-Client-IP");
+        }
+
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("WL-Proxy-Client-IP");
+        }
+
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+        }
+
+        // If multiple IPs (comma-separated), take first one
+        if (ipAddress != null && ipAddress.contains(",")) {
+            ipAddress = ipAddress.split(",")[0].trim();
+        }
+
+        return ipAddress != null ? ipAddress : "unknown";
+    }
 }

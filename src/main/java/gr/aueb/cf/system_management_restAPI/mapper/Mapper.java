@@ -1,10 +1,7 @@
 package gr.aueb.cf.system_management_restAPI.mapper;
 
 import gr.aueb.cf.system_management_restAPI.dto.*;
-import gr.aueb.cf.system_management_restAPI.model.Appointment;
-import gr.aueb.cf.system_management_restAPI.model.Client;
-import gr.aueb.cf.system_management_restAPI.model.PersonalInfo;
-import gr.aueb.cf.system_management_restAPI.model.User;
+import gr.aueb.cf.system_management_restAPI.model.*;
 import gr.aueb.cf.system_management_restAPI.model.static_data.City;
 import gr.aueb.cf.system_management_restAPI.repository.CityRepository;
 import lombok.RequiredArgsConstructor;
@@ -243,4 +240,23 @@ public class Mapper {
         existingAppointment.setReminderDateTime(appointmentUpdateDTO.getReminderDateTime());
         existingAppointment.setNotes(appointmentUpdateDTO.getNotes());
     }
+
+    /**
+     * Map SecurityAuditLog Entity -> SecurityEventDTO
+     */
+    public SecurityEventDTO mapToSecurityEventDTO(SecurityAuditLog log) {
+        var dto = new SecurityEventDTO();
+
+        dto.setId(log.getId());
+        dto.setEventType(log.getEventType());
+        dto.setUsername(log.getUsername());
+        dto.setIpAddress(log.getIpAddress());
+        dto.setUserAgent(log.getUserAgent());
+        dto.setSuccess(log.getSuccess());
+        dto.setTimestamp(log.getTimestamp());
+        dto.setDetails(log.getDetails());
+
+        return dto;
+    }
+
 }

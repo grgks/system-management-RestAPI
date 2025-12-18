@@ -2,6 +2,7 @@ package gr.aueb.cf.system_management_restAPI.security;
 
 import gr.aueb.cf.system_management_restAPI.authentication.JwtAuthenticationFilter;
 import gr.aueb.cf.system_management_restAPI.core.enums.Role;
+import gr.aueb.cf.system_management_restAPI.service.SecurityAuditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -28,11 +30,13 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity  //kanei to preauthorize active ->@PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')") Lvl 2 security layer
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
+    private final SecurityAuditService securityAuditService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,7 +44,7 @@ public class SecurityConfiguration {
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(myCustomAuthenticationEntryPoint()))
-                .exceptionHandling(exceptions -> exceptions.accessDeniedHandler(myCustomAccessDeniedHandler()))
+                .exceptionHandling(exceptions -> exceptions.accessDeniedHandler(myCustomAccessDeniedHandler(securityAuditService)))
                 .authorizeHttpRequests(req -> req
 //                        // Public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
@@ -52,7 +56,7 @@ public class SecurityConfiguration {
                         // Protected endpoints με roles
                         .requestMatchers("/api/clients/**").hasAnyAuthority(Role.CLIENT.getAuthority(), Role.SUPER_ADMIN.getAuthority())
                         .requestMatchers("/api/appointments/**").hasAnyAuthority(Role.CLIENT.getAuthority(), Role.PATIENT.getAuthority(), Role.SUPER_ADMIN.getAuthority())
-                        .requestMatchers("/api/admin/**").hasAnyAuthority(Role.SUPER_ADMIN.getAuthority())
+                        .requestMatchers("/api/admin/security/**").hasAnyAuthority(Role.SUPER_ADMIN.getAuthority())
 
 
                         .anyRequest().authenticated()
@@ -104,7 +108,7 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public AccessDeniedHandler myCustomAccessDeniedHandler() {
-        return new CustomAccessDeniedHandler();
+    public AccessDeniedHandler myCustomAccessDeniedHandler(SecurityAuditService securityAuditService) {
+        return new CustomAccessDeniedHandler(securityAuditService);
     }
 }
