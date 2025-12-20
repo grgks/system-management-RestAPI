@@ -93,6 +93,14 @@ Designed and implemented as the **Capstone Project** for the [Coding Factory, At
 - **Custom Filters** for Appointments and Clients
 - **Full-text Search** capabilities
 
+### 🛡️ **Security Audit System**
+- **Authentication Event Logging** - Track all login attempts, token validations
+- **CRUD Operation Auditing** - Monitor all create/update/delete operations
+- **Security Dashboard** - Real-time security metrics and event monitoring
+- **Security Metrics API** - 24-hour statistics, success rates, suspicious IPs
+- **Event Types Tracking**:
+  
+
 ### 🏗️ **Scalable Architecture**
 - **Role-based Design** ready for extension (CLIENT, PATIENT, SUPER_ADMIN)
 - **PATIENT role** implemented to demonstrate scalability potential
@@ -547,7 +555,89 @@ spring.jpa.hibernate.ddl-auto=update
 jwt.secret=${JWT_SECRET}
 jwt.expiration=7200000  # 2 hours
 ```
+---
+## 🛡️ Security Audit System
 
+### Overview
+Comprehensive security monitoring system tracking authentication events and CRUD operations.
+
+### Components
+
+#### SecurityAuditService
+Handles authentication-related events:
+- Login success/failure
+- Token validation errors
+- Authorization failures
+
+#### SecurityCrudAuditService
+Tracks all data modifications:
+- User management operations
+- Client CRUD operations
+- Appointment lifecycle events
+
+### Audit Log Structure
+```java
+{
+  "id": 1,
+  "eventType": "LOGIN_SUCCESS",
+  "username": "john.doe",
+  "ipAddress": "192.168.1.100",
+  "userAgent": "Mozilla/5.0...",
+  "success": true,
+  "timestamp": "2025-01-15T10:30:00",
+  "details": {
+    "userId": 123,
+    "action": "User logged in"
+  }
+}
+```
+
+### Security Endpoints
+
+#### Get Security Events
+```http
+GET /api/admin/security/events?limit=50
+Authorization: Bearer {admin_token}
+
+Response: Array of SecurityEvent objects
+```
+
+#### Get Security Metrics
+```http
+GET /api/admin/security/metrics
+Authorization: Bearer {admin_token}
+
+Response:
+{
+  "totalEvents": 1250,
+  "failedLoginsLast24h": 5,
+  "successfulLoginsLast24h": 45,
+  "tokenErrorsLast24h": 2,
+  "authorizationFailuresLast24h": 1,
+  "successRate": 90.0,
+  "suspiciousIPs": ["192.168.1.150"],
+  "recentFailures": [...]
+}
+```
+
+### Event Types Reference
+
+| Category | Event Type | Description |
+|----------|-----------|-------------|
+| **Auth** | LOGIN_SUCCESS | Successful user login |
+| **Auth** | LOGIN_FAILED | Failed login attempt |
+| **Auth** | TOKEN_EXPIRED | JWT token expired |
+| **Auth** | TOKEN_INVALID | Invalid JWT token |
+| **Auth** | AUTHORIZATION_FAILED | Insufficient permissions |
+| **User** | USER_CREATED | New user created by admin |
+| **User** | USER_UPDATED | User information modified |
+| **User** | USER_DELETED | User removed from system |
+| **Client** | CLIENT_CREATED | New client registered |
+| **Client** | CLIENT_UPDATED | Client information modified |
+| **Client** | CLIENT_DELETED | Client removed from system |
+| **Appointment** | APPOINTMENT_CREATED | New appointment scheduled |
+| **Appointment** | APPOINTMENT_UPDATED | Appointment modified |
+| **Appointment** | APPOINTMENT_DELETED | Appointment cancelled |
 ---
 
 ## 📝 Notes
@@ -557,10 +647,10 @@ jwt.expiration=7200000  # 2 hours
 > - ✅ Docker containerization with multi-stage builds
 > - ✅ CI/CD pipeline with automated builds and security scanning
 > - ✅ Production-ready deployment with Docker Compose
+> - ✅ Security audit dashboard with real-time monitoring and analytics
 >   
 > **Future enhancements may include:**
 > - 📧 Email notification system for appointment reminders
-> - 📊 Advanced analytics dashboard
 > - 🔔 Real-time push notifications (WebSocket)
 ---
 
