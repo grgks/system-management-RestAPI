@@ -750,6 +750,53 @@ All Docker images are automatically scanned:
 
 ---
 
+## 🔒 Privacy & Data Handling
+
+> **Important:** This is a demonstration/portfolio project designed to showcase security monitoring capabilities. It is not intended for production use with real user data.
+
+This API logs the following data strictly for security and operational demonstration purposes:
+- IP addresses (client identification and security monitoring)
+- User-Agent strings (browser/device information)
+- Authentication events (login attempts, token lifecycle)
+- User actions (CRUD operations for audit trail)
+
+**Purpose:** 
+- Security monitoring and threat detection
+- Fraud prevention and abuse mitigation
+- Audit logging for compliance requirements
+- System debugging and troubleshooting
+
+**Data Retention:** 
+- Security audit logs are retained for up to 90 days
+- Automatic cleanup policies can be configured
+
+**Access Control:** 
+- All security endpoints restricted to SUPER_ADMIN role only
+- API authentication required via JWT tokens
+- Role-based authorization enforced at service layer
+
+**Technical Implementation:**
+- IP extraction with proxy/load balancer support (X-Forwarded-For headers)
+- No PII tracking beyond operational requirements
+- No user profiling, behavioral analytics, or marketing tracking
+- Audit logs stored in dedicated database table with indexed queries
+
+**Compliance Notes:**
+For production deployments, ensure:
+- Comprehensive Privacy Policy implementation
+- GDPR compliance for EU users
+- Data subject access request (DSAR) endpoints
+- Appropriate data retention and deletion policies
+- Secure log archival procedures
+
+**Security Best Practices:**
+- Never log sensitive data (passwords, payment info, SSNs)
+- Use parameterized queries to prevent SQL injection in audit logs
+- Implement rate limiting on security endpoints
+- Regular security audits and penetration testing recommended
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
