@@ -8,6 +8,11 @@ plugins {
 group = 'gr.aueb.cf'
 version = '0.0.1-SNAPSHOT'
 
+// Force latest Tomcat version to fix critical vulnerabilities
+ext {
+	set('tomcat.version', '10.1.33')
+}
+
 java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(17)
