@@ -143,6 +143,14 @@ public class Mapper {
                     .orElse(null);
             existingPersonalInfo.setCity(city);
         }
+
+        // If we want to ALLOW removing city:(if i change mapToPersonalInfoEntity)
+//        if (personalInfoUpdateDTO.getCityId() != null) {
+//            City city = cityRepository.findById(...).orElseThrow();
+//            existingPersonalInfo.setCity(city);
+//        } else {
+//            existingPersonalInfo.setCity(null);  // ← Explicit removal
+//        }
     }
     //  USER MAPPINGS
 
@@ -172,7 +180,8 @@ public class Mapper {
 
         user.setUuid(UUID.randomUUID().toString());
         user.setUsername(userInsertDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(userInsertDTO.getPassword())); // Encrypt password
+        user.setPassword(passwordEncoder.encode(userInsertDTO.getPassword())); // Encrypt password (to do .delete hashing to map
+        // app hashes password to createAndSaveUser-ClientService.fix and clean architecture )
         user.setEmail(userInsertDTO.getEmail());
         user.setRole(userInsertDTO.getRole());
         user.setIsActive(userInsertDTO.getIsActive());
