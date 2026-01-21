@@ -118,6 +118,8 @@ public class Mapper {
         if (personalInfoInsertDTO.getCityId() != null) {
             City city =  cityRepository.findById(personalInfoInsertDTO.getCityId())
                     .orElse(null);
+            //better approach for messaging if not city/invalid.now fails silently kai null(na to dw!)
+            //.orElseThrow(() -> new NotFoundException("City not found with id: " + personalInfoInsertDTO.getCityId()));
             personalInfo.setCity(city);
         }
         return personalInfo;
