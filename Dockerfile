@@ -17,11 +17,11 @@ RUN ./gradlew dependencies --no-daemon || true
 # Copy source code
 COPY src ./src
 
-# Clean any problematic cache before building
-RUN rm -rf /root/.gradle/caches/modules-2/files-2.1/org.junit.platform || true
-
 # Build application (skip tests, no build cache)
 RUN ./gradlew clean build -x test --no-daemon --no-build-cache --stacktrace
+
+# Clean entire Gradle cache after build to prevent Docker layer caching issues
+RUN rm -rf /root/.gradle/caches
 
 # Runtime stage
 FROM eclipse-temurin:17-jre-alpine
