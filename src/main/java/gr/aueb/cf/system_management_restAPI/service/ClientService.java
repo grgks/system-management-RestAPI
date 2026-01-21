@@ -227,6 +227,8 @@ public class ClientService implements IClientService {
                 .orElseThrow(() -> new AppObjectNotFoundException("Client", "Client with id: " + id + " not found"));
     }
 
+
+    //move users methods to UserService-(clean architecture)
     private User createAndSaveUser(ClientInsertDTO dto) {
         User newUser = mapper.mapToUserEntity(dto.getUser());
         newUser.setPassword(passwordEncoder.encode(dto.getUser().getPassword()));
