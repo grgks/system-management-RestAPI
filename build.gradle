@@ -29,9 +29,9 @@ repositories {
 //industry-standard προσέγγιση για dependency overrides!
 configurations.all {
 	resolutionStrategy {
-		force 'org.apache.tomcat.embed:tomcat-embed-core:10.1.33'
-		force 'org.apache.tomcat.embed:tomcat-embed-websocket:10.1.33'
-		force 'org.apache.tomcat.embed:tomcat-embed-el:10.1.33'
+		force 'org.apache.tomcat.embed:tomcat-embed-core:10.1.45'
+		force 'org.apache.tomcat.embed:tomcat-embed-websocket:10.1.45'
+		force 'org.apache.tomcat.embed:tomcat-embed-el:10.1.45'
 	}
 }
 
