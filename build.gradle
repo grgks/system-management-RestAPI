@@ -9,9 +9,9 @@ group = 'gr.aueb.cf'
 version = '0.0.1-SNAPSHOT'
 
 // Force latest Tomcat version to fix critical vulnerabilities
-//ext {
-//	set('tomcat.version', '10.1.33')
-//}
+ext {
+	set('tomcat.version', '10.1.45')
+}
 
 java {
 	toolchain {
@@ -26,14 +26,14 @@ repositories {
 	mavenCentral()
 }
 
-//industry-standard προσέγγιση για dependency overrides!
-configurations.all {
-	resolutionStrategy {
-		force 'org.apache.tomcat.embed:tomcat-embed-core:10.1.45'
-		force 'org.apache.tomcat.embed:tomcat-embed-websocket:10.1.45'
-		force 'org.apache.tomcat.embed:tomcat-embed-el:10.1.45'
-	}
-}
+////industry-standard προσέγγιση για dependency overrides!
+//configurations.all {
+//	resolutionStrategy {
+//		force 'org.apache.tomcat.embed:tomcat-embed-core:10.1.45'
+//		force 'org.apache.tomcat.embed:tomcat-embed-websocket:10.1.45'
+//		force 'org.apache.tomcat.embed:tomcat-embed-el:10.1.45'
+//	}
+//}
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
