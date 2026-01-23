@@ -47,6 +47,10 @@ public class SecurityService {
             return "unknown";
         }
 
+        //Current (Render + Vercel) Protected by PaaS proxies, Code is fine as-is, No refactoring needed
+//     If Self-Hosted VPS: Add Nginx reverse proxy, Configure firewall (block direct access),
+//     Spring config: server.forward-headers-strategy=native, OR manually validate proxy source in code
+
         // Check X-Forwarded-For header (for proxies/load balancers)
         String ipAddress = request.getHeader("X-Forwarded-For");
 
