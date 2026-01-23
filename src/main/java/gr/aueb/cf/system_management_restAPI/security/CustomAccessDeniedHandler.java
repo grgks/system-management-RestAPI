@@ -40,6 +40,9 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json;charset=UTF-8");
 
+        // to do change apo manual JSON se object serialization
+        // gia Type-safe,  Easy to extend (add fields), No escaping issues.For production, object approach is better
+
         //  custom JSON response with the collected information
         String json = "{\"code\": \"userNotAuthorized\", " +
                 "\"description\": \"User is not allowed to access this endpoint.\"}";

@@ -83,6 +83,7 @@ public class AppointmentRestController {
                     )
             }
     )
+    //to do.create enum type(appointmentSortField) for auto validation from Spring
     @GetMapping("/appointments/sorted")
     public ResponseEntity<Page<AppointmentReadOnlyDTO>> getPaginatedSortedAppointments(
             @RequestParam(defaultValue = "0") int page,
@@ -237,6 +238,7 @@ public class AppointmentRestController {
                     )
             }
     )
+    //to do.add try/catch for logging consistent
     @GetMapping("/appointments/uuid/{uuid}")
     public ResponseEntity<AppointmentReadOnlyDTO> getAppointmentByUuid(@PathVariable String uuid) throws AppObjectNotFoundException {
         AppointmentReadOnlyDTO appointmentReadOnlyDTO = appointmentService.getAppointmentByUuid(uuid);
@@ -258,7 +260,8 @@ public class AppointmentRestController {
                     )
             }
     )
-
+//to do.add DeleteResponse DTO not mapper.1. Not Type-Safe,2. Runtime ClassCastException Risk,
+// 5. No Validation Support,6. Hard to Refactor,8. No Null Safety ,10. Serialization Issues
     @DeleteMapping("/appointments/{id}")
     public ResponseEntity<Map<String, Object>> deleteAppointment(@PathVariable Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         try {

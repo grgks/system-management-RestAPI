@@ -35,6 +35,10 @@ import java.time.LocalDateTime;
 import java.security.Principal;
 import java.util.List;
 
+//to do.add Add rate limiting for search/filter endpoints
+//1. Protection από Brute Force Attacks, 2. Protection από DoS, 3. Protection από Resource Abuse
+//@RateLimit(limit = 100, period = 1, unit = TimeUnit.MINUTES, key = "#principal.name")
+//kai add principal parameter sta methods,sta public add ip parameter.
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -285,6 +289,8 @@ public class ClientRestController {
                     )
             }
     )
+    //to do. 1)Review &delete code smell part..controller delegates to service only.twra bypass service kai
+    //no transaction-inconsistent. 2)Change from map response to dto response
     @DeleteMapping("/clients/{id}")
     public ResponseEntity<Map<String, Object>> deleteClient(@PathVariable Long id) throws AppObjectNotFoundException, AppObjectNotAuthorizedException {
         try {
@@ -403,6 +409,7 @@ public class ClientRestController {
                     )
             }
     )
+
     @GetMapping("/clients/search")
     public ResponseEntity<List<ClientReadOnlyDTO>> searchClientsByName(@RequestParam String name) {
         try {

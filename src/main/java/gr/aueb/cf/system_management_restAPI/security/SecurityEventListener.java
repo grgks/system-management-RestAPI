@@ -88,6 +88,8 @@ public class SecurityEventListener {
      * Helper: Extract client IP address (handles proxies)
      * For: Real IP might be behind proxy/load balancer
      */
+
+    //To do is duplicate.added to utils
     private String getClientIpAddress(HttpServletRequest request) {
         String ip = request.getHeader("X-Forwarded-For");
 

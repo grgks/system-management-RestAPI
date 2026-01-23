@@ -92,14 +92,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
+// token extraction & validation
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             LOGGER.info("Authorization header missing or invalid");
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
             response.getWriter().write("{\"code\": \"userNotAuthenticated\", \"description\": \"User must authenticate in order to access this endpoint\"}");
-          //  filterChain.doFilter(request, response);
-            return;
+          //  filterChain.doFilter(request, response);// ← Never reached(prevent unauthorize access,performance)
+            return; // <- Stop here
         }
         jwt = authHeader.substring(7);
 
@@ -107,10 +107,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             username = jwtService.extractSubject(jwt);
             userRole = jwtService.getStringClaim(jwt, "role");
 
-//            // ----------------- DEBUG PRINT -----------------
+
 //            LOGGER.info("DEBUG: JWT subject = {}", username);
 //            LOGGER.info("DEBUG: JWT role claim = {}", userRole);
-//            // ------------------------------------------------
+
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -146,6 +146,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
+
+            //to do change from json to object serialization <-----
+
             String jsonBody = "{\"code\": \"expired_token\", \"message\": \"" + e.getMessage() + "\"}";
             response.getWriter().write(jsonBody);
             return;
@@ -172,12 +175,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setContentType("application/json");
+
+            //to do change from json to object serialization <-----
+
             String jsonBody = "{\"code\": \"invalid_token\", \"description\": \"" + e.getMessage() + "\"}";
             response.getWriter().write(jsonBody);
             return;
         }
         filterChain.doFilter(request, response);
     }
+
+    //to do move the getClientIpAddress method to Utils
 
     /**
      * Helper: Extract client IP address (handles proxies)

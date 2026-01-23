@@ -13,6 +13,9 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    //to do add logging,Check account status. Exception message reveals if username exists ->
+    // IMPROVE: Generic message
+
     @Override
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {

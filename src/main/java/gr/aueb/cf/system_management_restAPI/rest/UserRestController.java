@@ -42,6 +42,7 @@ public class UserRestController {
             summary = "Get user by username",
             security = @SecurityRequirement(name = "Bearer Authentication")
     )
+    //@PreAuthorize(\"hasRole('ADMIN')or #username == authentication.name") -> to do.Only admin can access other users!
     @GetMapping("/username/{username}")
     public ResponseEntity<UserReadOnlyDTO> getUserByUsername(@PathVariable String username) throws AppObjectNotFoundException {
         try {

@@ -19,6 +19,9 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
 
         // Set the response status to 401 unauthorized
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+        // to do change apo manual JSON se object serialization
+        // gia Type-safe,  Easy to extend (add fields), No escaping issues.For production, object approach is better
         String json = "{\"code\": \"userNotAuthenticated\"," +
                 " \"description\": \"User must authenticate in order to access this endpoint\"}";
 

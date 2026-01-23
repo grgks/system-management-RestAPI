@@ -76,6 +76,24 @@ public class ClientValidationService {
                             "Client with VAT: " + vat + " already exists");
                 } catch (AppObjectAlreadyExists e) {
                     throw new RuntimeException(e);
+
+                    //Code smell = try-catch που wrap-άρει exception μέσα σε lambda
+                    //Σπάει το exception contract
+                    //RuntimeException δεν catch-άρεται από caller
+                    //Περιττή πολυπλοκότητα
+                    //na to do me to apo katw
+
+//                    private void validateVatUpdate(Long clientId, String vat) throws AppObjectAlreadyExists {
+//                        Optional<Client> existing = clientRepository.findById(clientId);
+//
+//                        if (existing.isPresent()) {
+//                            Client existingClient = existing.get();
+//
+//                            if (!vat.equals(existingClient.getVat()) &&
+//                                    clientRepository.findByVat(vat).isPresent()) {
+//                                throw new AppObjectAlreadyExists("Client", "Client with VAT: " + vat + " already exists");
+//
+
                 }
             }
         });
