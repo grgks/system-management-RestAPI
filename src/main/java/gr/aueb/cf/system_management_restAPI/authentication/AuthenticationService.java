@@ -27,6 +27,11 @@ public class AuthenticationService {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getUsername(), dto.getPassword()));
 
+
+        //to do. change exception to
+        // IllegalStateException(
+        //        \"User authenticated but not found in database - data inconsistency!\"
+        //    ));    If not found → Data inconsistency bug
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new AppObjectNotAuthorizedException("User", "User not authorized"));
 
