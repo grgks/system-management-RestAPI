@@ -60,10 +60,11 @@ public class AuthRestController {
         if (bindingResult.hasErrors()) {
             throw new ValidationException(bindingResult);
         }
-
+           //to do.add integrate me SecurityAuditService
         try {
             AuthenticationResponseDTO authenticationResponseDTO =
                     authenticationService.authenticate(authenticationRequestDTO);
+            //logs onlyDTO.username..we do not log entire DTO-potential password logging risk
             LOGGER.info("User authenticated: {}", authenticationRequestDTO.getUsername());
             return new ResponseEntity<>(authenticationResponseDTO, HttpStatus.OK);
         } catch (Exception e) {
