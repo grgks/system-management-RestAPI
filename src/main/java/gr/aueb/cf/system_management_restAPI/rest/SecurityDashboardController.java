@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+//Review caching issues(to reduce db load.now get all)
+
 @RestController
 @RequestMapping("/api/admin/security")
 @RequiredArgsConstructor
@@ -55,6 +57,8 @@ public class SecurityDashboardController {
                     )
             }
     )
+
+    //to do.add try/catch for consistent error handling
     @GetMapping("/events")
     @PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')") //(Method-Level Security)Lvl 2 - Defense in Depth.
     // hasAuthority(Role_Super_Admin) at SecurityConfig = Lvl 1 layer
@@ -93,6 +97,8 @@ public class SecurityDashboardController {
                     )
             }
     )
+
+    //to do.remove logic from getMetrics() and move to Service.controllers just delegates
     @GetMapping("/metrics")
     @PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')")
     public ResponseEntity<SecurityMetricsDTO> getMetrics() {
@@ -139,7 +145,7 @@ public class SecurityDashboardController {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     }
-
+        //to do.Review if i change response Map ->ResponseDTO(type-safe,)
     private List<Map<String, Object>> getRecentFailures(List<SecurityAuditLog> events) {
         return events.stream()
                 .filter(log -> !log.getSuccess())
