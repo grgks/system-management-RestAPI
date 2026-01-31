@@ -58,7 +58,7 @@ public class SecurityDashboardController {
             }
     )
 
-    //to do.add try/catch for consistent error handling
+
     @GetMapping("/events")
     @PreAuthorize("hasAuthority('ROLE_SUPER_ADMIN')") //(Method-Level Security)Lvl 2 - Defense in Depth.
     // hasAuthority(Role_Super_Admin) at SecurityConfig = Lvl 1 layer
