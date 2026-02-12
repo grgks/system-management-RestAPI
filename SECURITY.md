@@ -4,6 +4,67 @@
 
 This is a portfolio/educational project built as part of my capstone at Coding Factory AUEB. It is provided "as-is" for demonstration purposes only. **No official support or security updates are provided.**
 
+## Threat Modeling & Risk Analysis
+
+This document outlines identified assets, potential threats, associated risks, and mitigation strategies for this application.
+
+---
+
+### 1. Asset Inventory
+
+| ID | Asset Name | Asset Type (Data / System / Configuration / Business) | Description | Owner | Criticality (Low/Medium/High) |
+|----|------------|--------------------------------------------------------|-------------|--------|-------------------------------|
+| A1 |            |                                                        |             |        |                               |
+| A2 |            |                                                        |             |        |                               |
+| A3 |            |                                                        |             |        |                               |
+| A4 |            |                                                        |             |        |                               |
+| A5 |            |                                                        |             |        |                               |
+
+---
+
+### 2. Threat Register
+
+| ID | Related Asset (ID) | Threat Name | Threat Description | Attack Vector | Likelihood (Low/Medium/High) | Impact (Low/Medium/High) | Risk Level | Existing Mitigation | Additional Actions Required |
+|----|--------------------|------------|-------------------|--------------|-----------------------------|--------------------------|------------|--------------------|----------------------------|
+| T1 |                    |            |                   |              |                             |                          |            |                    |                            |
+| T2 |                    |            |                   |              |                             |                          |            |                    |                            |
+| T3 |                    |            |                   |              |                             |                          |            |                    |                            |
+| T4 |                    |            |                   |              |                             |                          |            |                    |                            |
+| T5 |                    |            |                   |              |                             |                          |            |                    |                            |
+
+---
+
+### 3. Risk Evaluation Criteria
+
+Risk Level is determined based on:
+
+- **Likelihood**: Probability of occurrence
+- **Impact**: Severity of consequences if exploited
+
+General Guidance:
+
+- Low: Limited impact or unlikely occurrence
+- Medium: Moderate impact or realistic possibility
+- High: Severe impact or high probability
+
+---
+
+### 4. Scope & Assumptions
+
+- This analysis focuses on application-level risks.
+- Infrastructure and cloud-level risks may not be fully covered.
+- This is an educational portfolio project and not production-hardened.
+
+---
+
+### 5. Review Log
+
+| Date | Reviewed By | Notes |
+|------|-------------|-------|
+|      |             |       |
+
+
+
 ## Security Measures Implemented
 
 This project demonstrates:
