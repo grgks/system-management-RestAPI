@@ -28,13 +28,13 @@ This document outlines identified assets, potential threats, associated risks, a
 
 ### 2. Threat Register
 
-| ID | Related Asset (ID) | Threat Name | Threat Description | Attack Vector | Likelihood (Low/Medium/High) | Impact (Low/Medium/High) | Risk Level | Existing Mitigation | Additional Actions Required |
-|----|----------------|------------|-------------------|--------------|-----------------------------|--------------------------|------------|--------------------|----------------------------|
-| T1 |                |            |                   |              |                             |                          |            |                    |                            |
-| T2 |                |            |                   |              |                             |                          |            |                    |                            |
-| T3 |                |            |                   |              |                             |                          |            |                    |                            |
-| T4 |                |            |                   |              |                             |                          |            |                    |                            |
-| T5 |                |            |                   |              |                             |                          |            |                    |                            |
+| ID | Related Asset (ID) | Threat Name                     | Threat Description                                                      | Attack Vector              | Likelihood (Low/Medium/High) | Impact (Low/Medium/High) | Risk Level | Existing Mitigation                                           | Additional Actions Required             |
+|----|--------------------|---------------------------------|-------------------------------------------------------------------------|----------------------------|------------------------------|--------------------------|------------|---------------------------------------------------------------|-----------------------------------------|
+| T1 | A1 ,  A5           | SQL Injection in Authentication | Attacker bypasses login using SQL injection in username/password fields | API/ authenticate endpoint | Low                          | High                     | MEDIUM     | VERIFIED: Hibernate ORM with parameterized queries(EFFECTIVE) | PASSED - No additional actions required |
+| T2 |                    |                                 |                                                                         |                            |                              |                          |            |                                                               |                                         |
+| T3 |                    |                                 |                                                                         |                            |                              |                          |            |                                                               |                                         |
+| T4 |                    |                                 |                                                                         |                            |                              |                          |            |                                                               |                                         |
+| T5 |                    |                                 |                                                                         |                            |                              |                          |            |                                                               |                                         |
 
 ---
 
