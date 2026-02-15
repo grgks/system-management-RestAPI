@@ -11,26 +11,30 @@ This document outlines identified assets, potential threats, associated risks, a
 ---
 
 ### 1. Asset Inventory
+### 1. Asset Inventory
 
-| ID | Asset Name | Asset Type (Data / System / Configuration / Business) | Description | Owner | Criticality (Low/Medium/High) |
-|----|------------|--------------------------------------------------------|-------------|--------|-------------------------------|
-| A1 |            |                                                        |             |        |                               |
-| A2 |            |                                                        |             |        |                               |
-| A3 |            |                                                        |             |        |                               |
-| A4 |            |                                                        |             |        |                               |
-| A5 |            |                                                        |             |        |                               |
+| ID | Asset Name | Asset Type | Description | Owner | Criticality |
+|----|------------|------------|-------------|--------|-------------|
+| A1 | User Credentials Database | Data | Usernames, BCrypt password hashes (11 rounds), emails, roles | Application | HIGH |
+| A2 | Client Personal Information | Data | Names, phones, VAT numbers, addresses, date of birth | Application | HIGH |
+| A3 | Appointment Records | Data | Client appointments, scheduling data, notes | Application | MEDIUM |
+| A4 | JWT Secret Key | Configuration | Secret key for token signing (`jwt.secret` environment variable) | DevOps | HIGH |
+| A5 | REST API Endpoints | System | Authentication, user management, appointment CRUD operations | Application | HIGH |
+| A6 | Swagger API Documentation | System | Complete API schema, endpoints, parameters | Application | MEDIUM |
+| A7 | MySQL Database Server | System | Database instance with all application data | Infrastructure | HIGH |
+| A8 | Spring Boot Application | System | Backend server handling business logic | Infrastructure | HIGH |                            |                                                       |                                                         |             |                               |
 
 ---
 
 ### 2. Threat Register
 
 | ID | Related Asset (ID) | Threat Name | Threat Description | Attack Vector | Likelihood (Low/Medium/High) | Impact (Low/Medium/High) | Risk Level | Existing Mitigation | Additional Actions Required |
-|----|--------------------|------------|-------------------|--------------|-----------------------------|--------------------------|------------|--------------------|----------------------------|
-| T1 |                    |            |                   |              |                             |                          |            |                    |                            |
-| T2 |                    |            |                   |              |                             |                          |            |                    |                            |
-| T3 |                    |            |                   |              |                             |                          |            |                    |                            |
-| T4 |                    |            |                   |              |                             |                          |            |                    |                            |
-| T5 |                    |            |                   |              |                             |                          |            |                    |                            |
+|----|----------------|------------|-------------------|--------------|-----------------------------|--------------------------|------------|--------------------|----------------------------|
+| T1 |                |            |                   |              |                             |                          |            |                    |                            |
+| T2 |                |            |                   |              |                             |                          |            |                    |                            |
+| T3 |                |            |                   |              |                             |                          |            |                    |                            |
+| T4 |                |            |                   |              |                             |                          |            |                    |                            |
+| T5 |                |            |                   |              |                             |                          |            |                    |                            |
 
 ---
 
