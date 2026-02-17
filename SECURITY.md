@@ -33,7 +33,7 @@ This document outlines identified assets, potential threats, associated risks, a
 | T1 | A1 ,  A5           | SQL Injection in Authentication    | Attacker bypasses login using SQL injection in username/password fields | API/ authenticate endpoint        | Low                          | High                     | MEDIUM     | VERIFIED: <br/>Hibernate ORM with parameterized queries(EFFECTIVE)              | PASSED - No additional actions required                                                                    |
 | T2 | A4 ,  A5           | JWT Manipulation                   | Attacker modifies JWT claims (role escalation CLIENT<br/>-> ADMIN)      | Token tampering, "none" algorithm | Low                          | High                     | MEDIUM     | VERIFIED: <br/>JWT library (jjwt) rejects unsigned tokens (EFFECTIVE)           | PASSED - No additional actions required                                                                    |
 | T3 | A5                 | Authorization Bypass               | Attacker accesses admin endpoints with CLIENT role token                | API authorization checks          | Low                          | High                     | MEDIUM     | VERIFIED:<br/>Spring Security context checks + ownership validation (EFFECTIVE) | PASSED - No additional actions required                                                                    |
-| T4 | A1                 | Brute Force Attack                 | Attacker attempts multiple login combinations to guess credentials      | API `/authenticate` endpoint      | High                         | Medium                   | HIgh       | BCrypt 11 rounds<br/> (slow hashing), Security audit logging (DETECTIVE only)   | FAILED - Implement rate limiting (Bucket4j: 5 attempts/min per IP) + BadCredentialsException error handler |
+| T4 | A1                 | Brute Force Attack                 | Attacker attempts multiple login combinations to guess credentials      | API `/authenticate` endpoint      | High                         | Medium                   | HIGH       | BCrypt 11 rounds<br/> (slow hashing), Security audit logging (DETECTIVE only)   | FAILED - Implement rate limiting (Bucket4j: 5 attempts/min per IP) + BadCredentialsException error handler |
 | T5 | A6                 | Information Disclosure via Swagger | Attacker learns complete API structure                                  | Public Swagger UI                 | High                         | Low                      | MEDIUM     | None - <br/>publicly accessible                                                 | ACCEPTED RISK - Appropriate for portfolio/demo project. Restrict to admins in production                   |
 
 ---
@@ -61,11 +61,40 @@ General Guidance:
 
 ---
 
-### 5. Review Log
+### 5. Pentesting Environment & Methodology
 
-| Date | Reviewed By | Notes |
-|------|-------------|-------|
-|      |             |       |
+**Lab Setup**:
+All security tests were conducted in an isolated penetration testing lab environment:
+
+- **Target System**: Ubuntu Server 24.04 VM running the application backend
+- **Attack System**: Kali Linux VM with standard pentesting tools
+- **Network**: Isolated internal network (192.168.100.0/24) with NO internet access
+- **Scope**: Application-level security testing only
+
+**Testing Approach**:
+- Ethical hacking principles applied throughout
+- Tests conducted with full authorization (self-owned project)
+- No third-party services or production systems were tested
+- All vulnerabilities documented for educational purposes and remediation
+
+**Tools Used**:
+- Manual testing: curl, bash scripting
+- Network analysis: Nmap (planned)
+- Password analysis: John the Ripper, Hashcat (planned)
+- Brute force testing: Hydra (planned)
+
+**Important Note**:
+This pentesting was performed in a controlled, isolated environment. Never perform security testing on production systems or third-party applications without explicit written permission.
+
+---
+
+### 6. Review Log
+
+| Date      | Reviewed By | Notes                                  |
+|-----------|-------------|----------------------------------------|
+| 13/2/2026 | grgks       | Initial Asset Inventory                |
+| 15/2/2026 | grgks       | Initial threat modeling and pentesting |
+| 17/2/2026 | grgks       | Threat modelling and pentesting        |
 
 
 
