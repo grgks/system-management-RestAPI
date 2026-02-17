@@ -11,7 +11,6 @@ This document outlines identified assets, potential threats, associated risks, a
 ---
 
 ### 1. Asset Inventory
-### 1. Asset Inventory
 
 | ID | Asset Name | Asset Type | Description | Owner | Criticality |
 |----|------------|------------|-------------|--------|-------------|
