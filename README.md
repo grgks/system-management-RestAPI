@@ -21,6 +21,28 @@ Designed and implemented as the **Capstone Project** for the [Coding Factory, At
 [![Latest Release](https://img.shields.io/github/v/release/grgks/system-management-RestAPI?color=brightgreen)](https://github.com/grgks/system-management-RestAPI/releases/tag/v1.0.0)
 
 ---
+## 📋 Table of Contents
+- [Live Production](#Live Production)
+- [Screenshots from the WorkApp and video tutorial](#Screenshots)
+- [Features](#Features)
+- [Tech Stack](#Tech Stack)
+- [Prerequisites](#Prerequisites)
+- [Architecture Diagrams](#Architecture Diagrams)
+- [Quick Start](#Quick Start)
+- [API Documentation](#API Documentation)
+- [Authentication](#Authentication)
+- [Project Structure](#Project Structure)
+- [Testing](#Testing)
+- [Configuration](#Configuration)
+- [Security Audit System](#Security Audit System)
+- [Notes](#Notes)
+- [Docker Deployment](#Docker Deployment)
+- [Production Deployment](#Production Deployment)
+- [CI/CD & Security](#-CI/CD--Security)
+- [Privacy & Data Handling](#Privacy  Data Handling)
+- [License](#License)
+- [Acknowledgments](#Acknowledgments)
+
 ## 🌐 Live Production
 
 **Production API:** https://system-management-restapi.onrender.com
