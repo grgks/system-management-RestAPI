@@ -62,7 +62,7 @@ General Guidance:
 
 ### 5. Pentesting Environment & Methodology
 
-**Lab Setup**:
+#### 5.1 Lab Setup
 All security tests were conducted in an isolated penetration testing lab environment:
 
 - **Target System**: Ubuntu Server 24.04 VM running the application backend
@@ -85,6 +85,73 @@ All security tests were conducted in an isolated penetration testing lab environ
 **Important Note**:
 This pentesting was performed in a controlled, isolated environment. Never perform security testing on production systems or third-party applications without explicit written permission.
 
+---
+
+#### 5.2 Vulnerability Management & Remediation
+
+**Automated Dependency Scanning**:
+
+This project implements continuous security monitoring through Trivy vulnerability scanning integrated in the CI/CD pipeline.
+
+**Security Remediation Actions**:
+
+1. **Apache Tomcat Critical Vulnerability Fix** (January 2026)
+   - **CVE**: CVE-2025-55754
+   - **Severity**: CRITICAL
+   - **Component**: Apache Tomcat Embedded Core
+   - **Upgrade**: 10.1.33 → 10.1.45
+   - **Issue**: Console manipulation vulnerability
+   - **Resolution**: Explicit Tomcat dependency version enforcement in build configuration
+```gradle
+   ext {
+       set('tomcat.version', '10.1.45')
+   }
+```
+
+**Current Security Status** (Latest Trivy Scan):
+- **Total vulnerabilities: 7**
+   - 0 CRITICAL ✅
+   - 2 HIGH (Spring Framework components)
+   - 3 MEDIUM
+   - 2 LOW
+
+**Continuous Security Pipeline**:
+```yaml
+# Automated Trivy scanning on every Docker build
+- Trivy vulnerability scanner (CI/CD integration)
+- Results uploaded to GitHub Security tab
+- SARIF format for native GitHub visualization
+- Automatic alerts for new CVEs (Dependabot)
+```
+
+**Risk Management**:
+- All remaining vulnerabilities tracked in GitHub Security tab
+- Risk-based prioritization for future updates
+- Proactive security posture with automated monitoring
+
+---
+
+#### 5.3 OWASP Top 10 Coverage
+
+This security assessment focused on the **most critical OWASP Top 10 vulnerabilities** for REST APIs:
+
+**Directly Tested Threats**:
+
+| OWASP Category | Test Performed | Result                                                                  |
+|----------------|----------------|-------------------------------------------------------------------------|
+| #1: Broken Access Control | T3: Authorization Bypass Testing | ✅ PASSED                                                                |
+| #3: Injection | T1: SQL Injection Testing | ✅ PASSED                                                                |
+| #5: Security Misconfiguration | T5: Information Disclosure via Swagger | 🟡 ACCEPTED RISK <br/>( *because it is for demonstration purposes only) |
+| #7: Authentication Failures | T2: JWT Manipulation, T4: Brute Force | ⚠️ T2 PASSED, T4 FAILED                                                 |
+
+**Additional Protections** (verified):
+- **#2: Cryptographic Failures** → BCrypt 11 rounds + HTTPS in production ✅
+- **#6: Vulnerable Components** → Automated Trivy scanning with continuous monitoring ✅
+- **#9: Security Logging** → Comprehensive security audit system ✅
+
+
+
+- **Coverage Assessment**: **70% of OWASP Top 10** with with proactive vulnerability management .
 ---
 
 ### 6. Review Log
