@@ -4,6 +4,8 @@
 
 This is a portfolio/educational project built as part of my capstone at Coding Factory AUEB. It is provided "as-is" for demonstration purposes only. **No official support or security updates are provided.**
 
+Scope: This document covers backend security analysis (Spring Boot REST API). Frontend security (XSS protection, HTTPS, React escaping) will be documented separately.
+
 ## Threat Modeling & Risk Analysis
 
 This document outlines identified assets, potential threats, associated risks, and mitigation strategies for this application.
@@ -151,7 +153,7 @@ This security assessment focused on the **most critical OWASP Top 10 vulnerabili
 
 
 
-- **Coverage Assessment**: **70% of OWASP Top 10** with with proactive vulnerability management .
+- **Coverage Assessment**: **70% of OWASP Top 10** with proactive vulnerability management .
 ---
 
 ### 6. Review Log
