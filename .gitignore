@@ -44,3 +44,5 @@ test-output/
 /test-output.txt
 
 application-prod.properties
+
+.env
