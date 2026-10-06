@@ -143,8 +143,11 @@ Designed and implemented as the **Capstone Project** for the [Coding Factory, At
 
 - **Backend**: Spring Boot 3.4.7
 - **Security**: Spring Security + JWT
-- **Database**: MySQL 8.0
+- **Database**:
+  - Production: PostgreSQL on Neon (serverless, scale-to-zero)
+  - Local dev: MySQL 8.0
 - **ORM**: Spring Data JPA + Hibernate **with EntityManager for complex queries**
+- **Connection Pool: HikariCP (tuned for serverless scale-to-zero)**
 - **Validation**: Bean Validation  **+ Custom Business Validation**
 - **Documentation**: OpenAPI 3.0 + Swagger UI
 - **Build Tool**: Gradle
@@ -561,15 +564,32 @@ After running tests, view detailed reports:
 
 ---
 
-
 ## 🔧 Configuration
 
 ### Database Configuration
+
+**Local development (`application.properties`)** — MySQL:
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/appointment_system_restdb
 spring.datasource.username=${DB_USERNAME}
 spring.datasource.password=${DB_PASSWORD}
 spring.jpa.hibernate.ddl-auto=update
+```
+
+**Production (`application-render.properties`)** |  Neon PostgreSQL with HikariCP tuned for scale-to-zero:
+```properties
+spring.datasource.url=${DATABASE_URL}
+spring.datasource.username=${DATABASE_USERNAME}
+spring.datasource.password=${DATABASE_PASSWORD}
+spring.jpa.hibernate.ddl-auto=update
+
+# HikariCP tuning for Neon free tier (100 CU-hours/month)
+# Allows the serverless DB to scale down to zero when idle,
+# instead of keeping compute endpoint permanently active.
+spring.datasource.hikari.minimum-idle=0
+spring.datasource.hikari.maximum-pool-size=3
+spring.datasource.hikari.idle-timeout=30000
+```ate.ddl-auto=update
 ```
 
 ### JWT Configuration
@@ -726,30 +746,64 @@ docker-compose up -d
 
 ## ☁️ Production Deployment
 
-### Render Platform
+### Hosting Platform
+- Backend: Render (Docker, free tier)
+- Frontend: Vercel (connected to the React/TypeScript client)
+- Database: Neon PostgreSQL (serverless, free tier)
 
-This API is deployed on **[Render](https://render.com)** using Docker containers.
+Production URL: https://system-management-restapi.onrender.com
+Connected Frontend: https://appointment-system-react-one.vercel.app
 
-**Deployment Features:**
-- ✅ Automated deployments from GitHub
-- ✅ Docker-based deployment
-- ✅ Environment variables management
-- ✅ Automatic HTTPS
-- ✅ Health checks and monitoring
+### Deployment Features
+- ✅ Automated deployments from GitHub (push to main → auto-build)
+- ✅ Docker-based deployment with multi-stage builds
+- ✅ Environment variables management via Render dashboard
+- ✅ Automatic HTTPS (Let's Encrypt)
+- ✅ Health checks and readiness probes
 
-**Production URL:** https://system-management-restapi.onrender.com
+### Infrastructure Evolution
 
-**Connected Frontend:** https://appointment-system-react-one.vercel.app
+The production infrastructure went through two optimizations to stay on free tiers without compromising reliability:
+
+**1. Database migration: Render PostgreSQL → Neon (July 2026)**
+
+Originally the app ran on Render's managed PostgreSQL instance. To reduce monthly cost to zero while keeping production-grade PostgreSQL, the database was migrated to Neon's serverless free tier (100 CU-hours/month, 0.5 GB storage).
+
+Migration steps:
+- Full `pg_dump` from Render Postgres via pgAdmin
+- Restored into fresh Neon project (eu-central-1, closest region to Render Frankfurt)
+- Verified all 6 tables + data integrity post-restore
+- Switched Render backend env vars to Neon connection string
+- Suspended old Render Postgres only after live traffic confirmed stable
+
+**2. HikariCP tuning for Neon scale-to-zero (July 2026)**
+
+Shortly after migration, Neon alerted at 80% CU-hours consumed in 20 days — the DB was never going idle. Root cause: Spring Boot's default HikariCP pool (10 idle connections, `minimum-idle = maximum-pool-size`) kept the Neon compute endpoint permanently active, blocking its scale-to-zero behavior.
+
+Fix added to `application-render.properties`:
+```properties
+spring.datasource.hikari.minimum-idle=0
+spring.datasource.hikari.maximum-pool-size=3
+spring.datasource.hikari.idle-timeout=30000
+```
+
+Result: Neon compute now scales to zero after 30 seconds of inactivity. Monthly CU-hour consumption dropped from ~80 hours in 20 days to a few hours per month | well inside free tier.
+
+### Cold Start Handling
+
+Render's free tier spins down inactive services after 15 minutes. To keep the backend responsive:
+- UptimeRobot pings `GET /v3/api-docs` every 7 minutes (chosen because it does NOT touch the DB, so it does not interfere with Neon scale-to-zero)
+- Result: backend stays warm 24/7 while Neon DB still scales to zero independently
+
+First-request cold starts (30-60s) can still occur after extended downtime or Render redeploys.
 
 ### Environment Configuration
 
-Production environment uses the following configuration:
-- **Database:** MySQL 8.0
-- **CORS:** Configured for Vercel frontend
-- **JWT:** Production secret key
-- **Port:** 8080
-
-**Note:** Cold starts may occur on free tier (30-60s first request)
+Production environment variables set via Render dashboard:
+- `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD` (Neon connection)
+- `JWT_SECRET` (production signing key)
+- `CORS_ALLOWED_ORIGINS` (Vercel frontend URL)
+- `SPRING_PROFILES_ACTIVE=render`
 
 ## 🔄 CI/CD & Security
 
