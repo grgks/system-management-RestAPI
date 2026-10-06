@@ -160,7 +160,8 @@ Designed and implemented as the **Capstone Project** for the [Coding Factory, At
 - **MySQL 8.0** or higher
 - **Gradle 7.0** or higher
 - **Git**
-  
+
+  > **Note:** Production uses PostgreSQL (Neon). Local development runs on MySQL — no PostgreSQL install needed to get started.
 ---
 ## 🏗️ Architecture Diagrams
 *Complete system overview showing layered architecture, database relationships, and security flow*
@@ -589,7 +590,6 @@ spring.jpa.hibernate.ddl-auto=update
 spring.datasource.hikari.minimum-idle=0
 spring.datasource.hikari.maximum-pool-size=3
 spring.datasource.hikari.idle-timeout=30000
-```ate.ddl-auto=update
 ```
 
 ### JWT Configuration
@@ -687,13 +687,16 @@ Response:
 >
 > **Implemented Features:**
 > - ✅ Docker containerization with multi-stage builds
-> - ✅ CI/CD pipeline with automated builds and security scanning
-> - ✅ Production-ready deployment with Docker Compose
+> - ✅ CI/CD pipeline with automated builds and security scanning (Trivy)
+> - ✅ Production-ready deployment on Render + Neon PostgreSQL (free tier)
 > - ✅ Security audit dashboard with real-time monitoring and analytics
->   
+> - ✅ Threat modeling (OWASP Top 10, 70% coverage) — see [SECURITY.md](SECURITY.md)
+> - ✅ CVE remediation workflow (43 → 7 vulnerabilities)
+>
 > **Future enhancements may include:**
 > - 📧 Email notification system for appointment reminders
 > - 🔔 Real-time push notifications (WebSocket)
+> - 🚦 Rate limiting on authentication endpoints (Bucket4j)
 ---
 
 ## 🐳 Docker Deployment
@@ -810,20 +813,33 @@ Production environment variables set via Render dashboard:
 ### Automated Pipeline
 
 Every push to `main` triggers:
-- ✅ Automated Docker build
+- ✅ Automated Docker build (multi-stage, Alpine-based)
 - ✅ Security vulnerability scanning (Trivy)
 - ✅ Push to Docker Hub
-- ✅ GitHub Security alerts
+- ✅ GitHub Security alerts (Dependabot + SARIF upload)
 
 **Workflow:** [GitHub Actions](.github/workflows/docker-build-push.yml)
 
 ### Security Scanning
 
-All Docker images are automatically scanned:
+All Docker images are continuously scanned via Trivy integrated in the CI/CD pipeline:
 - **Scanner:** Trivy + Docker Scout
 - **Reports:** [Security tab](https://github.com/grgks/system-management-restAPI/security)
-- **Status:** 9 known vulnerabilities (monitored, fixes available)
+- **Current status:** 7 vulnerabilities (0 CRITICAL, 2 HIGH, 3 MEDIUM, 2 LOW)
+- **CVE remediation example:** CVE-2025-55754 (Tomcat) — upgraded 10.1.33 → 10.1.45
 
+### Threat Modeling & Pentesting
+
+A full threat model (asset inventory + threat register) and pentesting assessment covering **OWASP Top 10** categories is documented separately:
+
+👉 **[SECURITY.md — Full threat model, pentesting results, and CVE remediation history](SECURITY.md)**
+
+Covered threats:
+- SQL Injection, JWT manipulation, Authorization Bypass → PASSED
+- Brute Force → FAILED (rate limiting pending — Bucket4j planned)
+- Information Disclosure via Swagger → ACCEPTED RISK (portfolio project)
+
+OWASP Top 10 coverage: **70%** with proactive vulnerability management.
 ---
 
 ## 🔒 Privacy & Data Handling
